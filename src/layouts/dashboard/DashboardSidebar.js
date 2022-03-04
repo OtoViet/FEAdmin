@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
+import { Box, Link, Drawer, Typography, Avatar, Stack } from '@mui/material';
 // components
 import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
@@ -57,13 +57,13 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       }}
     >
       <Box sx={{ px: 2.5, py: 3 }}>
-        <Box component={RouterLink} to="/" sx={{ display: 'inline-flex' }}>
+        <Box component={RouterLink} to="/">
           <Logo />
         </Box>
       </Box>
 
       <Box sx={{ mb: 5, mx: 2.5 }}>
-        <Link underline="none" component={RouterLink} to="#">
+        <Link underline="none" component={RouterLink} to="/">
           <AccountStyle>
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
@@ -96,27 +96,9 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         >
           <Box
             component="img"
-            src="/static/illustrations/illustration_avatar.png"
+            src="/static/illustrations/car.png"
             sx={{ width: 100, position: 'absolute', top: -50 }}
           />
-
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography gutterBottom variant="h6">
-              Get more?
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              From only $69
-            </Typography>
-          </Box>
-
-          <Button
-            fullWidth
-            href="https://material-ui.com/store/items/minimal-dashboard/"
-            target="_blank"
-            variant="contained"
-          >
-            Upgrade to Pro
-          </Button>
         </Stack>
       </Box>
     </Scrollbar>

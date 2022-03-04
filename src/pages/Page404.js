@@ -21,18 +21,17 @@ const RootStyle = styled(Page)(({ theme }) => ({
 
 export default function Page404() {
   return (
-    <RootStyle title="404 Page Not Found | Minimal-UI">
+    <RootStyle title="Không tìm thấy">
       <Container>
         <MotionContainer initial="initial" open>
           <Box sx={{ maxWidth: 480, margin: 'auto', textAlign: 'center' }}>
             <motion.div variants={varBounceIn}>
               <Typography variant="h3" paragraph>
-                Sorry, page not found!
+                Xin lỗi, không tìm thấy trang!
               </Typography>
             </motion.div>
             <Typography sx={{ color: 'text.secondary' }}>
-              Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL?
-              Be sure to check your spelling.
+              Vui lòng kiểm tra lại đường dẫn hoặc thử lại sau.
             </Typography>
 
             <motion.div variants={varBounceIn}>
@@ -44,7 +43,7 @@ export default function Page404() {
             </motion.div>
 
             <Button to="/" size="large" variant="contained" component={RouterLink}>
-              Go to Home
+              Về trang chủ
             </Button>
           </Box>
         </MotionContainer>

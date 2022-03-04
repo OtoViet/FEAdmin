@@ -18,7 +18,8 @@ function responsiveFontSizes({ sm, md, lg }) {
   };
 }
 
-const FONT_PRIMARY = 'Public Sans, sans-serif';
+const FONT_PRIMARY =
+  '-apple-system, BlinkMacSystemFont, Barlow, Segoe UI, Roboto, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol';
 
 const typography = {
   fontFamily: FONT_PRIMARY,

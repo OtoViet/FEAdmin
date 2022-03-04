@@ -12,11 +12,11 @@ export default function SearchNotFound({ searchQuery = '', ...other }) {
   return (
     <Paper {...other}>
       <Typography gutterBottom align="center" variant="subtitle1">
-        Not found
+        Không tìm thấy nhân viên
       </Typography>
       <Typography variant="body2" align="center">
-        No results found for &nbsp;
-        <strong>&quot;{searchQuery}&quot;</strong>. Try checking for typos or using complete words.
+        Cho kết quả tìm kiếm &nbsp;
+        <strong>&quot;{searchQuery}&quot;</strong>. Kiểm tra lại tên nhân viên.
       </Typography>
     </Paper>
   );

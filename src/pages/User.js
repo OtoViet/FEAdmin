@@ -1,16 +1,13 @@
 import { filter } from 'lodash';
-import { Icon } from '@iconify/react';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
-import plusFill from '@iconify/icons-eva/plus-fill';
-import { Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import FormDialog from '../components/FormCreateUser.js';
 // material
 import {
   Card,
   Table,
   Stack,
   Avatar,
-  Button,
   Checkbox,
   TableRow,
   TableBody,
@@ -18,7 +15,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  CircularProgress
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -28,14 +26,14 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../components/_dashboard/user';
 //
 import USERLIST from '../_mocks_/user';
-
+import useGetAllEmployee from '../hooks/useGetAllEmployee';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'name', label: 'Họ tên', alignRight: false },
+  { id: 'company', label: 'Ngày sinh', alignRight: false },
+  { id: 'role', label: 'Địa chỉ', alignRight: false },
+  { id: 'isVerified', label: 'Đánh giá', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' }
 ];
@@ -72,6 +70,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function User() {
+  const [loading, employeesTest] = useGetAllEmployee();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -131,21 +130,20 @@ export default function User() {
 
   const isUserNotFound = filteredUsers.length === 0;
 
+  if(loading) return <>
+    <h2 style={{textAlign: "center"}}>Đang tải danh sách nhân viên</h2>
+    <Stack alignItems="center" mt={10}>
+      <CircularProgress size={80} />
+    </Stack>
+  </>;
   return (
-    <Page title="User | Minimal-UI">
+    <Page title="Nhân viên">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Nhân viên
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Icon icon={plusFill} />}
-          >
-            New User
-          </Button>
+          <FormDialog />
         </Stack>
 
         <Card>
@@ -242,6 +240,8 @@ export default function User() {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} tổng ${count}`}
+            labelRowsPerPage="Số dòng mỗi trang"
           />
         </Card>
       </Container>

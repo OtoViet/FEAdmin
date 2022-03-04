@@ -16,17 +16,17 @@ import account from '../../_mocks_/account';
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
+    label: 'Trang chủ',
     icon: homeFill,
     linkTo: '/'
   },
   {
-    label: 'Profile',
+    label: 'Tài khoản',
     icon: personFill,
     linkTo: '#'
   },
   {
-    label: 'Settings',
+    label: 'Cài đặt',
     icon: settings2Fill,
     linkTo: '#'
   }

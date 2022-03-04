@@ -78,7 +78,7 @@ export default function ShopFilterSidebar({
         endIcon={<Icon icon={roundFilterList} />}
         onClick={onOpenFilter}
       >
-        Filters&nbsp;
+        Lọc theo&nbsp;
       </Button>
 
       <FormikProvider value={formik}>
@@ -98,7 +98,7 @@ export default function ShopFilterSidebar({
               sx={{ px: 1, py: 2 }}
             >
               <Typography variant="subtitle1" sx={{ ml: 1 }}>
-                Filters
+                Lọc theo
               </Typography>
               <IconButton onClick={onCloseFilter}>
                 <Icon icon={closeFill} width={20} height={20} />

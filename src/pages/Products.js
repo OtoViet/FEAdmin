@@ -47,10 +47,10 @@ export default function EcommerceShop() {
   };
 
   return (
-    <Page title="Dashboard: Products | Minimal-UI">
+    <Page title="Sản phẩm/Dịch vụ">
       <Container>
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Products
+          Sản phẩm/ dịch vụ
         </Typography>
 
         <Stack
