@@ -12,7 +12,7 @@ export default function SearchNotFound({ searchQuery = '', ...other }) {
   return (
     <Paper {...other}>
       <Typography gutterBottom align="center" variant="subtitle1">
-        Không tìm thấy nhân viên
+        Không tìm thấy nhân viên hoặc do danh sách nhân viên rỗng
       </Typography>
       <Typography variant="body2" align="center">
         Cho kết quả tìm kiếm &nbsp;

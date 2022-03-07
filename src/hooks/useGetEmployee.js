@@ -1,20 +1,20 @@
 import FormApi from '../api/formApi.js';
 import { useState, useEffect } from 'react';
 
-function useGetAllEmployee() {
-    const [employees, setEmployees] = useState([]);
+function useGetEmployee(id) {
+    const [employee, setEmployee] = useState([]);
     const [loading, setLoading] = useState(true);
-    const getListEmployee = () => {
-        FormApi.getAllEmployee().then((employees) => {
-            setEmployees(employees);
+    const getEmployee = () => {
+        FormApi.getEmployee(id).then((employee) => {
+            setEmployee(employee);
             setLoading(false)
         })
             .catch((error) => {
                 FormApi.token({ refreshToken: localStorage.getItem('refreshToken') }).then((res) => {
                     localStorage.setItem('token', res.accessToken);
                     localStorage.setItem('refreshToken', res.refreshToken);
-                    FormApi.getAllEmployee().then((employees) => {
-                        setEmployees(employees);
+                    FormApi.getEmployee(id).then((employee) => {
+                        setEmployee(employee);
                         setLoading(false)
                     })
                         .catch((error) => {
@@ -27,8 +27,8 @@ function useGetAllEmployee() {
             });
     };
     useEffect(() => {
-        getListEmployee();
+        getEmployee();
     }, []);
-    return [loading, employees];
+    return [loading, employee];
 }
-export default useGetAllEmployee;
+export default useGetEmployee;

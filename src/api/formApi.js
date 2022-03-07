@@ -58,6 +58,18 @@ const formApi={
     getAllEmployee: function(){
         const url ='/admin/getAllEmployee';
         return axiosClient.get(url);
+    },
+    deleteEmployee: function(id){
+        const url ='/admin/deleteEmployee/'+id;
+        return axiosClient.delete(url);
+    },
+    updateInfoEmployee: function(body,id){
+        const url ='/admin/updateInfoEmployee/'+id;
+        return axiosClient.patch(url,body);
+    },
+    getEmployee: function(id){
+        const url ='/admin/getEmployee/'+id;
+        return axiosClient.get(url);
     }
 }
 export default formApi;

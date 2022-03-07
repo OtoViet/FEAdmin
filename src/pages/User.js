@@ -25,16 +25,15 @@ import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../components/_dashboard/user';
 //
-import USERLIST from '../_mocks_/user';
 import useGetAllEmployee from '../hooks/useGetAllEmployee';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Họ tên', alignRight: false },
-  { id: 'company', label: 'Ngày sinh', alignRight: false },
-  { id: 'role', label: 'Địa chỉ', alignRight: false },
-  { id: 'isVerified', label: 'Đánh giá', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'fullName', label: 'Họ tên', alignRight: false },
+  { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
+  { id: 'address', label: 'Địa chỉ', alignRight: false },
+  { id: 'phoneNumber', label: 'Liên lạc', alignRight: false },
+  { id: 'isVerified', label: 'isVerified', alignRight: false },
   { id: '' }
 ];
 
@@ -64,35 +63,67 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.fullName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
 export default function User() {
-  const [loading, employeesTest] = useGetAllEmployee();
+  let [loading, employees] = useGetAllEmployee();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('fullName');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [employeeList, setEmployeeList] = useState(null);
+  const [emptyRows, setEmptyRows] = useState(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+  const [filteredUsers, setFilteredUsers] = useState(applySortFilter(employees, getComparator(order, orderBy), filterName));
+  useEffect(() => {
+    setFilteredUsers(applySortFilter(employees, getComparator(order, orderBy), filterName));
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+    return setEmployeeList(employees);
+  }, [employees]);
+  const getEmployeeFromChild = (employee) => {
+    employees.push(employee);
+    setFilteredUsers(applySortFilter(employees, getComparator(order, orderBy), filterName))
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+    setEmployeeList(applySortFilter(employees, getComparator(order, orderBy), filterName));
+  };
+  const getEmployeeFromChildDelete = (employee) => {
+    employees = employees.filter(item => item._id !== employee._id);
+    setFilteredUsers(applySortFilter(employees, getComparator(order, orderBy), filterName));
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+    setEmployeeList(applySortFilter(employees, getComparator(order, orderBy), filterName));
+  };
+  const getEmployeeFromChildUpdate = async (employee) => {
+    let newEmployeeList = await employees.map(item => {
+      if (item._id === employee._id) {
+        return employee;
+      }
+      return item;
+    });
+    setFilteredUsers(applySortFilter(newEmployeeList, getComparator(order, orderBy), filterName));
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+    setEmployeeList(applySortFilter(newEmployeeList, getComparator(order, orderBy), filterName));
+  };
+  ////
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
+    console.log('handle sort',isAsc);
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = employeeList.map((n) => n.fullName);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
-
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
@@ -123,19 +154,14 @@ export default function User() {
   const handleFilterByName = (event) => {
     setFilterName(event.target.value);
   };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
-
-  const isUserNotFound = filteredUsers.length === 0;
-
-  if(loading) return <>
-    <h2 style={{textAlign: "center"}}>Đang tải danh sách nhân viên</h2>
+  if (loading) return <>
+    <h2 style={{ textAlign: "center" }}>Đang tải danh sách nhân viên</h2>
     <Stack alignItems="center" mt={10}>
       <CircularProgress size={80} />
     </Stack>
   </>;
+  const filteredUsers1 = applySortFilter(employeeList, getComparator(order, orderBy), filterName);
+  const isUserNotFound = filteredUsers1.length === 0;
   return (
     <Page title="Nhân viên">
       <Container>
@@ -143,7 +169,7 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
             Nhân viên
           </Typography>
-          <FormDialog />
+          <FormDialog parentCallback={getEmployeeFromChild} />
         </Stack>
 
         <Card>
@@ -160,22 +186,22 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={employeeList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {filteredUsers1
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                      const { _id, fullName, isVerified, address, dateOfBirth, phoneNumber, image } = row;
+                      const isItemSelected = selected.indexOf(fullName) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={_id}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
@@ -184,31 +210,40 @@ export default function User() {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={isItemSelected}
-                              onChange={(event) => handleClick(event, name)}
+                              onChange={(event) => handleClick(event, fullName)}
                             />
                           </TableCell>
                           <TableCell component="th" scope="row" padding="none">
                             <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
+                              <Avatar alt={fullName} src={image} />
                               <Typography variant="subtitle2" noWrap>
-                                {name}
+                                {fullName}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                          <TableCell align="left">{dateOfBirth}</TableCell>
+                          <TableCell align="left">{address}</TableCell>
+                          <TableCell align="left">{phoneNumber}</TableCell>
                           <TableCell align="left">
-                            <Label
-                              variant="ghost"
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
+                            {isVerified ? (
+                              <Label
+                                variant="ghost"
+                                color={'success'}
+                              >
+                                {sentenceCase('Yes')}
+                              </Label>) : (<Label
+                                variant="ghost"
+                                color={'error'}
+                              >
+                                {sentenceCase('No')}
+                              </Label>)}
                           </TableCell>
 
                           <TableCell align="right">
-                            <UserMoreMenu />
+                            <UserMoreMenu idEmployee={_id}
+                              employeeList={employeeList}
+                              getEmployeeFromChildUpdate={getEmployeeFromChildUpdate}
+                              parentCallback1={getEmployeeFromChildDelete} />
                           </TableCell>
                         </TableRow>
                       );
@@ -235,7 +270,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={employeeList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

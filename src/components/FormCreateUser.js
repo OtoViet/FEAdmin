@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import Box from '@mui/material/Box';
 import { Link as RouterLink } from 'react-router-dom';
@@ -14,17 +14,36 @@ import Grid from '@mui/material/Grid';
 import { useFormik } from 'formik';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { styled } from '@mui/material/styles';
+import Stack from '@mui/material/Stack';
+import IconButton from '@mui/material/IconButton';
+import CardMedia from '@mui/material/CardMedia';
+import Card from '@mui/material/Card';
+
 import FormApi from '../api/formApi';
 import * as Yup from 'yup';
 import ResponsiveDialog from './Dialog';
-export default function FormDialog() {
+export default function FormDialog(props) {
+
     const [open, setOpen] = useState(false);
+    const [employee, setEmployee] = useState(null);
     const [dialog, setDialog] = useState(false);
     const [valueDate, setValueDate] = useState(new Date('2000-08-18T21:11:54'));
+    const [image, setImage] = useState('');
+    const [imageUpload, setImageUpload] = useState('');
+    useEffect(() => {
+        if(employee){
+            return props.parentCallback(employee);
+        }
+    },[employee]);
     const handleClickOpen = () => {
         setOpen(true);
     };
+    const Input = styled('input')({
+        display: 'none',
+    });
     const signUpSchema = Yup.object().shape({
         email: Yup.string()
             .email('Email không hợp lệ')
@@ -56,6 +75,7 @@ export default function FormDialog() {
     });
     const handleClose = () => {
         setOpen(false);
+        setImage('');
         formik.handleReset();
     };
     const formik = useFormik({
@@ -67,16 +87,33 @@ export default function FormDialog() {
             lastName: '',
             phoneNumber: '',
             dateOfBirth: '',
+            image: '',
+            address: ''
         },
         validationSchema: signUpSchema,
         onSubmit: (values) => {
-            const EmployeeData = values;
-            FormApi.createEmployeeAccount(EmployeeData).then(res => {
-                console.log(res);
-                setDialog(true);
-                setOpen(false);
-            }).catch(err => {
-                console.log(err);
+            let formData = new FormData();
+            let url = "https://api.cloudinary.com/v1_1/dq7zeyepu/image/upload";
+            let file = imageUpload;
+            formData.append("file", file);
+            formData.append("upload_preset", "kkurekfz");
+            formData.append("folder", "avatar");
+            fetch(url, {
+                method: "POST",
+                body: formData
+            })
+            .then(async function (response) {
+                var data = await response.text();
+                var dataJson = await JSON.parse(data);
+                const EmployeeData = values;
+                EmployeeData.image = dataJson.secure_url;
+                FormApi.createEmployeeAccount(EmployeeData).then(res => {
+                    setEmployee(res);
+                    setDialog(true);
+                    setOpen(false);
+                }).catch(err => {
+                    console.log(err);
+                });
             });
         },
     });
@@ -84,10 +121,15 @@ export default function FormDialog() {
         setValueDate(newValue);
         formik.setFieldValue('dateOfBirth', newValue);
     };
+    const handleChangeImage = (e) => {
+        setImage(URL.createObjectURL(e.target.files[0]));
+        setImageUpload(e.target.files[0]);
+        formik.setFieldValue('image', e.target.files[0]);
+    };
     return (
         <div>
-            {dialog? <ResponsiveDialog open={dialog} title="Thông báo"
-                    content="Đăng kí tài khoản mới cho nhân viên thành công!" /> :null}
+            {dialog ? <ResponsiveDialog open={dialog} title="Thông báo"
+                content="Đăng kí tài khoản mới cho nhân viên thành công!" /> : null}
             <Button
                 variant="contained"
                 component={RouterLink}
@@ -113,7 +155,6 @@ export default function FormDialog() {
                                     fullWidth
                                     id="lastName"
                                     label="Họ"
-                                    autoFocus
                                     value={formik.values.lastName}
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
@@ -140,6 +181,7 @@ export default function FormDialog() {
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DesktopDatePicker
                                         label="Ngày sinh"
+                                        required
                                         inputFormat="dd/MM/yyyy"
                                         value={valueDate}
                                         onChange={handleChangeDate}
@@ -152,6 +194,19 @@ export default function FormDialog() {
                                             required fullWidth />}
                                     />
                                 </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <label htmlFor="icon-button-file">
+                                        Tải lên ảnh nhân viên
+                                        <Input accept="image/*" id="icon-button-file" type="file"
+                                            onChange={handleChangeImage} />
+                                        <IconButton color="primary" aria-label="upload picture" component="span">
+                                            <CameraAltIcon />
+                                        </IconButton>
+                                    </label>
+
+                                </Stack>
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -167,6 +222,16 @@ export default function FormDialog() {
                                     helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
                                 />
                             </Grid>
+                            {image ? <Stack alignItems="center" ml={2}>
+                                <Card sx={{ maxWidth: 345 }}>
+                                    <CardMedia
+                                        component="img"
+                                        height="140"
+                                        image={image}
+                                        alt="green iguana"
+                                    />
+                                </Card>
+                            </Stack> : null}
                             <Grid item xs={12} sm={12}>
                                 <TextField
                                     required
