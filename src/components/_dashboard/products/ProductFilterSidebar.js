@@ -27,28 +27,19 @@ import ColorManyPicker from '../../ColorManyPicker';
 // ----------------------------------------------------------------------
 
 export const SORT_BY_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High-Low' },
-  { value: 'priceAsc', label: 'Price: Low-High' }
+  { value: 'productNameAsc', label: 'Tên tăng dần' },
+  { value: 'productNameDesc', label: 'Tên giảm dần' },
+  { value: 'newest', label: 'Mới nhất' },
+  { value: 'priceDesc', label: 'Giá: Thấp→Cao' },
+  { value: 'priceAsc', label: 'Giá: Cao→Thấp' }
 ];
-export const FILTER_GENDER_OPTIONS = ['Men', 'Women', 'Kids'];
+export const FILTER_GENDER_OPTIONS = ['Rửa xe', 'Vệ sinh xe', 'Thay phụ tùng'];
 export const FILTER_CATEGORY_OPTIONS = ['All', 'Shose', 'Apparel', 'Accessories'];
-export const FILTER_RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
+export const FILTER_RATING_OPTIONS = ['up5Star','up4Star', 'up3Star', 'up2Star', 'up1Star'];
 export const FILTER_PRICE_OPTIONS = [
-  { value: 'below', label: 'Below $25' },
-  { value: 'between', label: 'Between $25 - $75' },
-  { value: 'above', label: 'Above $75' }
-];
-export const FILTER_COLOR_OPTIONS = [
-  '#00AB55',
-  '#000000',
-  '#FFFFFF',
-  '#FFC0CB',
-  '#FF4842',
-  '#1890FF',
-  '#94D82D',
-  '#FFC107'
+  { value: 'below', label: 'Giá thấp hơn $25' },
+  { value: 'between', label: 'Giá khoảng $25 - $75' },
+  { value: 'above', label: 'Giá từ $75' }
 ];
 
 // ----------------------------------------------------------------------
@@ -111,7 +102,7 @@ export default function ShopFilterSidebar({
               <Stack spacing={3} sx={{ p: 3 }}>
                 <div>
                   <Typography variant="subtitle1" gutterBottom>
-                    Gender
+                    Loại dịch vụ
                   </Typography>
                   <FormGroup>
                     {FILTER_GENDER_OPTIONS.map((item) => (
@@ -143,20 +134,7 @@ export default function ShopFilterSidebar({
 
                 <div>
                   <Typography variant="subtitle1" gutterBottom>
-                    Colour
-                  </Typography>
-                  <ColorManyPicker
-                    name="colors"
-                    colors={FILTER_COLOR_OPTIONS}
-                    onChange={handleChange}
-                    onChecked={(color) => values.colors.includes(color)}
-                    sx={{ maxWidth: 36 * 4 }}
-                  />
-                </div>
-
-                <div>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Price
+                    Giá
                   </Typography>
                   <RadioGroup {...getFieldProps('priceRange')}>
                     {FILTER_PRICE_OPTIONS.map((item) => (
@@ -172,7 +150,7 @@ export default function ShopFilterSidebar({
 
                 <div>
                   <Typography variant="subtitle1" gutterBottom>
-                    Rating
+                    Đánh giá
                   </Typography>
                   <RadioGroup {...getFieldProps('rating')}>
                     {FILTER_RATING_OPTIONS.map((item, index) => (
@@ -183,11 +161,11 @@ export default function ShopFilterSidebar({
                           <Radio
                             disableRipple
                             color="default"
-                            icon={<Rating readOnly value={4 - index} />}
-                            checkedIcon={<Rating readOnly value={4 - index} />}
+                            icon={<Rating readOnly value={5 - index} />}
+                            checkedIcon={<Rating readOnly value={5 - index} />}
                           />
                         }
-                        label="& Up"
+                        label=""
                         sx={{
                           my: 0.5,
                           borderRadius: 1,
@@ -217,7 +195,7 @@ export default function ShopFilterSidebar({
                 onClick={onResetFilter}
                 startIcon={<Icon icon={roundClearAll} />}
               >
-                Clear All
+                Thiết lập lại
               </Button>
             </Box>
           </Drawer>

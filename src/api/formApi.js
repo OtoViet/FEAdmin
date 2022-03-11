@@ -70,6 +70,22 @@ const formApi={
     getEmployee: function(id){
         const url ='/admin/getEmployee/'+id;
         return axiosClient.get(url);
+    },
+    addNewProduct: function(body){
+        const url ='/admin/addNewProduct';
+        return axiosClient.post(url,body);
+    },
+    getAllProduct: function(){
+        const url ='/admin/getAllProduct';
+        return axiosClient.get(url);
+    },
+    updateProduct: function(body,id){
+        const url ='/admin/updateProduct/'+id;
+        return axiosClient.patch(url,body);
+    },
+    deleteProduct: function(id){
+        const url ='/admin/deleteProduct/'+id;
+        return axiosClient.delete(url);
     }
 }
 export default formApi;

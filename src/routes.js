@@ -1,4 +1,5 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Navigate, useRoutes, useNavigate } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
@@ -9,6 +10,7 @@ import Products from './pages/Products';
 import Blog from './pages/Blog';
 import User from './pages/User';
 import NotFound from './pages/Page404';
+import ProductDetail from './pages/ProductDetail';
 import FormApi from './api/formApi';
 // ----------------------------------------------------------------------
 
@@ -20,7 +22,7 @@ const routeNotAdmin = [
       { path: '', element: <DashboardApp /> },
       { path: 'user', element: <User /> },
       { path: 'products', element: <Products /> },
-      { path: 'blog', element: <Blog /> },
+      { path: 'orders', element: <Blog /> },
     ]
   },
   {
@@ -43,8 +45,9 @@ const routeAdmin = [
       { path: '', element: <DashboardApp /> },
       { path: 'user', element: <User /> },
       { path: 'products', element: <Products /> },
-      { path: 'blog', element: <Blog /> },
-      { path: '*', element: <Navigate to="/login" replace /> }
+      { path: 'products/detail', element: <ProductDetail /> },
+      { path: 'orders', element: <Blog /> },
+      { path: '*', element: <Navigate to="/404" replace /> }
     ]
   },
   {
@@ -60,10 +63,28 @@ const routeAdmin = [
 ];
 ////
 function Admin() {
-  let admin = false;
   FormApi.checkAdmin()
     .then((res) => {
-      admin = true;
+      console.log('van dang dang nhap duoi quyen admin');
+      FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
+        .then((res) => {
+          localStorage.setItem('token', res.accessToken);
+          localStorage.setItem('refreshToken', res.refreshToken);
+          FormApi.checkAdmin()
+            .then((res) => {
+              console.log('van dang dang nhap duoi quyen admin');
+            })
+            .catch((err) => {
+              console.log('het phien dang nhap');
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
+            });
+        })
+        .catch((err) => {
+          console.log('het phien dang nhap');
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+        });
     })
     .catch((err) => {
       FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
@@ -72,21 +93,48 @@ function Admin() {
           localStorage.setItem('refreshToken', res.refreshToken);
           FormApi.checkAdmin()
             .then((res) => {
-              admin = true;
+              console.log('van dang dang nhap duoi quyen admin');
             })
             .catch((err) => {
-              admin = false;
+              console.log('het phien dang nhap');
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
             });
         })
         .catch((err) => {
+          console.log('het phien dang nhap');
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
         });
     });
 }
+function AutoRefreshToken(){
+  console.log('goi ham refresh token');
+  if(localStorage.getItem('refreshToken')){
+    FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
+      .then((res) => {
+        localStorage.setItem('token', res.accessToken);
+        localStorage.setItem('refreshToken', res.refreshToken);
+      })
+      .catch((err) => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+      });
+  }
+}
 export default function Router() {
-  Admin();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if(!(localStorage.getItem('token') && localStorage.getItem('refreshToken'))) navigate('/login');
+  },[]);
+  const ref = useRef();
   let isAdmin = localStorage.getItem('token') && localStorage.getItem('refreshToken') ? true : false;
+  useEffect(() => {
+    const interval = setInterval(AutoRefreshToken, 15*60000)
+    ref.current = interval
+    return () => clearInterval(interval)
+  }, []);
+  Admin();
   let routes = isAdmin ? routeAdmin : routeNotAdmin;
   return useRoutes(routes);
 }

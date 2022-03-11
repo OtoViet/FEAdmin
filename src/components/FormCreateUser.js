@@ -201,7 +201,8 @@ export default function FormDialog(props) {
                                         Tải lên ảnh nhân viên
                                         <Input accept="image/*" id="icon-button-file" type="file"
                                             onChange={handleChangeImage} />
-                                        <IconButton color="primary" aria-label="upload picture" component="span">
+                                        <IconButton color="primary" aria-label="upload picture" 
+                                        onChange={handleChangeImage} component="span">
                                             <CameraAltIcon />
                                         </IconButton>
                                     </label>

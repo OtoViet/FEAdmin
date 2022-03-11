@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
-import { Box, Card, Link, Typography, Stack } from '@mui/material';
+import { Box, Card, Link, Typography, Stack, Rating  } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // utils
 import { fCurrency } from '../../../utils/formatNumber';
 //
 import Label from '../../Label';
-import ColorPreview from '../../ColorPreview';
+// import ColorPreview from '../../ColorPreview';
 
 // ----------------------------------------------------------------------
 
@@ -26,8 +26,12 @@ ShopProductCard.propTypes = {
 };
 
 export default function ShopProductCard({ product }) {
-  const { name, cover, price, colors, status, priceSale } = product;
-
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/products/detail`, { state: product });
+  };
+  const { productName, images, price, /*colors,*/ status, priceSale } = product;
+  // console.log(images);
   return (
     <Card>
       <Box sx={{ pt: '100%', position: 'relative' }}>
@@ -46,29 +50,33 @@ export default function ShopProductCard({ product }) {
             {status}
           </Label>
         )}
-        <ProductImgStyle alt={name} src={cover} />
+        <ProductImgStyle alt={productName} src={images[0].url} />
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
-        <Link to="#" color="inherit" underline="hover" component={RouterLink}>
+        <Typography color="inherit"
+        component="span"
+        onClick={handleClick} >
           <Typography variant="subtitle2" noWrap>
-            {name}
+            {productName}
           </Typography>
-        </Link>
+        </Typography>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <ColorPreview colors={colors} />
+          {/* <ColorPreview colors={colors} /> */}
+          <Typography
+            component="span"
+            variant="body1"
+            sx={{
+              color: 'text.disabled',
+              textDecoration: 'line-through'
+            }}
+          >
+          <Rating name="read-only" sx={{marginTop:0.3}} value={4} size="small" readOnly />
+
+          {priceSale && fCurrency(priceSale)}
+          </Typography>
           <Typography variant="subtitle1">
-            <Typography
-              component="span"
-              variant="body1"
-              sx={{
-                color: 'text.disabled',
-                textDecoration: 'line-through'
-              }}
-            >
-              {priceSale && fCurrency(priceSale)}
-            </Typography>
             &nbsp;
             {fCurrency(price)}
           </Typography>

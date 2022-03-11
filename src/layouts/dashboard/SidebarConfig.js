@@ -3,7 +3,7 @@ import pieChart2Fill from '@iconify/icons-eva/pie-chart-2-fill';
 import peopleFill from '@iconify/icons-eva/people-fill';
 import shoppingBagFill from '@iconify/icons-eva/shopping-bag-fill';
 import fileTextFill from '@iconify/icons-eva/file-text-fill';
-import lockFill from '@iconify/icons-eva/lock-fill';
+// import lockFill from '@iconify/icons-eva/lock-fill';
 
 // ----------------------------------------------------------------------
 
@@ -26,15 +26,15 @@ const sidebarConfig = [
     icon: getIcon(shoppingBagFill)
   },
   {
-    title: 'blog',
-    path: '/blog',
+    title: 'Danh sách lịch hẹn',
+    path: '/orders',
     icon: getIcon(fileTextFill)
   },
-  {
-    title: 'Đăng nhập',
-    path: '/login',
-    icon: getIcon(lockFill)
-  }
+  // {
+  //   title: 'Đăng nhập',
+  //   path: '/login',
+  //   icon: getIcon(lockFill)
+  // }
 ];
 
 export default sidebarConfig;

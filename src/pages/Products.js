@@ -1,23 +1,26 @@
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import FormDialog from '../components/FormAddNewProduct.js';
 // material
-import { Container, Stack, Typography } from '@mui/material';
+import { Container, Stack, Typography, CircularProgress } from '@mui/material';
 // components
 import Page from '../components/Page';
 import {
   ProductSort,
   ProductList,
-  ProductCartWidget,
+  // ProductCartWidget,
   ProductFilterSidebar
 } from '../components/_dashboard/products';
 //
-import PRODUCTS from '../_mocks_/products';
+import useGetAllProduct from '../hooks/useGetAllProduct';
 
 // ----------------------------------------------------------------------
 
 export default function EcommerceShop() {
   const [openFilter, setOpenFilter] = useState(false);
-
+  const [data, setData] = useState('loading');
+  let [loading, products] = useGetAllProduct();
+  const [productList, setProductList] = useState(null);
   const formik = useFormik({
     initialValues: {
       gender: '',
@@ -31,6 +34,15 @@ export default function EcommerceShop() {
     }
   });
 
+  useEffect(() => {
+    setProductList(products);
+  },[products]);
+  
+  const handleAddNewProduct = (product) => {
+    products.push(product);
+    setData(Math.random());
+    setProductList(products);
+  };
   const { resetForm, handleSubmit } = formik;
 
   const handleOpenFilter = () => {
@@ -40,11 +52,21 @@ export default function EcommerceShop() {
   const handleCloseFilter = () => {
     setOpenFilter(false);
   };
-
+  const handleSort = (data) => {
+    products = data;
+    setProductList(data);
+    setData(Math.random());
+  };
   const handleResetFilter = () => {
     handleSubmit();
     resetForm();
   };
+  if (loading) return <>
+    <h2 style={{ textAlign: "center" }}>Đang tải danh sách sản phẩm/dịch vụ</h2>
+    <Stack alignItems="center" mt={10}>
+      <CircularProgress size={80} />
+    </Stack>
+  </>;
 
   return (
     <Page title="Sản phẩm/Dịch vụ">
@@ -52,7 +74,7 @@ export default function EcommerceShop() {
         <Typography variant="h4" sx={{ mb: 5 }}>
           Sản phẩm/ dịch vụ
         </Typography>
-
+        <FormDialog parentCallback={handleAddNewProduct}/>
         <Stack
           direction="row"
           flexWrap="wrap-reverse"
@@ -68,12 +90,12 @@ export default function EcommerceShop() {
               onOpenFilter={handleOpenFilter}
               onCloseFilter={handleCloseFilter}
             />
-            <ProductSort />
+            <ProductSort products={productList} productsParent={handleSort}/>
           </Stack>
         </Stack>
 
-        <ProductList products={PRODUCTS} />
-        <ProductCartWidget />
+        <ProductList products={productList} />
+        {/* <ProductCartWidget /> */}
       </Container>
     </Page>
   );

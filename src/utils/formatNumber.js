@@ -2,9 +2,20 @@ import { replace } from 'lodash';
 import numeral from 'numeral';
 
 // ----------------------------------------------------------------------
+// numeral.register('locale', 'vi', {
+//   delimiters: {
+//       thousands: ' ',
+//       decimal: ','
+//   },
+//   currency: {
+//       symbol: '₫'
+//   }
+// });
 
+// // switch between locales
+// numeral.locale('vi');
 export function fCurrency(number) {
-  return numeral(number).format(Number.isInteger(number) ? '$0,0' : '$0,0.00');
+  return numeral(number).format(Number.isInteger(number) ? '0,0$' : '0,0.00$');
 }
 
 export function fPercent(number) {
