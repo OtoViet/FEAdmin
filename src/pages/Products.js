@@ -12,12 +12,14 @@ import {
   ProductFilterSidebar
 } from '../components/_dashboard/products';
 //
+import Pagination from '../components/Pagination';
 import useGetAllProduct from '../hooks/useGetAllProduct';
 
 // ----------------------------------------------------------------------
 
 export default function EcommerceShop() {
   const [openFilter, setOpenFilter] = useState(false);
+  const [pages, setPages] = useState(1);
   const [data, setData] = useState('loading');
   let [loading, products] = useGetAllProduct();
   const [productList, setProductList] = useState(null);
@@ -48,7 +50,9 @@ export default function EcommerceShop() {
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
-
+  const handleClickPagination = (value) => {
+    setPages(value);
+  };
   const handleCloseFilter = () => {
     setOpenFilter(false);
   };
@@ -94,8 +98,9 @@ export default function EcommerceShop() {
           </Stack>
         </Stack>
 
-        <ProductList products={productList} />
+        <ProductList products={productList} pages={pages} />
         {/* <ProductCartWidget /> */}
+        <Pagination count={Math.ceil(productList.length/8)} onClick={handleClickPagination} />
       </Container>
     </Page>
   );

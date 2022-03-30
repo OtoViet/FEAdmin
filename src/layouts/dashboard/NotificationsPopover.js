@@ -1,4 +1,5 @@
 import faker from 'faker';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { noCase } from 'change-case';
 import { useRef, useState } from 'react';
@@ -30,6 +31,8 @@ import { mockImgAvatar } from '../../utils/mockImages';
 // components
 import Scrollbar from '../../components/Scrollbar';
 import MenuPopover from '../../components/MenuPopover';
+//socket
+import io from 'socket.io-client';
 
 // ----------------------------------------------------------------------
 
@@ -167,6 +170,15 @@ function NotificationItem({ notification }) {
 }
 
 export default function NotificationsPopover() {
+  useEffect(() => {
+    const socket = io("http://localhost:5000", { transports: ['websocket', 'polling', 'flashsocket'] });
+    socket.on("connect", () => {
+      console.log(socket.id);
+    });
+    socket.on('send',function(data){
+      alert(data);
+    })
+  }, []);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);

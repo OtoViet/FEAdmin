@@ -30,6 +30,11 @@ export default function ShopProductCard({ product }) {
   const handleClick = () => {
     navigate(`/products/detail`, { state: product });
   };
+  let ratingTotal = 0;
+  product.rating.forEach((item) => {
+    ratingTotal += item.rating;
+  });
+  ratingTotal = ratingTotal / product.rating.length;
   const { productName, images, price, /*colors,*/ status, priceSale } = product;
   // console.log(images);
   return (
@@ -72,7 +77,7 @@ export default function ShopProductCard({ product }) {
               textDecoration: 'line-through'
             }}
           >
-          <Rating name="read-only" sx={{marginTop:0.3}} value={4} size="small" readOnly />
+          <Rating name="read-only" sx={{marginTop:0.3}} value={ratingTotal} precision={0.5} size="small" readOnly />
 
           {priceSale && fCurrency(priceSale)}
           </Typography>

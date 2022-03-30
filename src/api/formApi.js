@@ -86,6 +86,50 @@ const formApi={
     deleteProduct: function(id){
         const url ='/admin/deleteProduct/'+id;
         return axiosClient.delete(url);
-    }
+    },
+    createStore: function(body){
+        const url ='/admin/createStore';
+        return axiosClient.post(url,body);
+    },
+    getAllStore: function(){
+        const url ='/admin/getAllStore';
+        return axiosClient.get(url);
+    },
+    updateStore: function(body,id){
+        const url ='/admin/updateStore/'+id;
+        return axiosClient.patch(url,body);
+    },
+    deleteStore: function(id){
+        const url ='/admin/deleteStore/'+id;
+        return axiosClient.delete(url);
+    },
+    statistical: function(){
+        const url ='/admin/statistical';
+        return axiosClient.get(url);
+    },
+    statisticalLast7days: function(){
+        const url ='/admin/statisticalLast7days';
+        return axiosClient.get(url);
+    },
+    getAllOrder: function(){
+        const url ='/admin/getAllOrder';
+        return axiosClient.get(url);
+    },
+    createDiscount: function(body){
+        const url ='/admin/createDiscount';
+        return axiosClient.post(url,body);
+    },
+    getAllDiscount: function(){
+        const url ='/admin/getAllDiscount';
+        return axiosClient.get(url);
+    },
+    updateDiscount: function(body,id){
+        const url ='/admin/updateDiscount/'+id;
+        return axiosClient.patch(url,body);
+    },
+    deleteDiscount: function(id){
+        const url ='/admin/deleteDiscount/'+id;
+        return axiosClient.delete(url);
+    },
 }
 export default formApi;

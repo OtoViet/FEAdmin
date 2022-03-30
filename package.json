@@ -5,7 +5,7 @@
   "version": "1.2.0",
   "private": false,
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=4000 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -39,9 +39,10 @@
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "@iconify/icons-ant-design": "^1.1.0",
+    "@iconify/icons-bxs": "^1.2.3",
     "@iconify/icons-eva": "^1.1.0",
     "@iconify/icons-ic": "^1.1.10",
-    "@iconify/react": "^3.0.1",
+    "@iconify/react": "^3.2.0",
     "@mui/icons-material": "^5.4.4",
     "@mui/lab": "^5.0.0-alpha.47",
     "@mui/material": "^5.4.4",
@@ -66,6 +67,7 @@
     "react-scripts": "^4.0.1",
     "simplebar": "^5.3.5",
     "simplebar-react": "^2.3.5",
+    "socket.io-client": "^4.4.1",
     "web-vitals": "^2.1.0",
     "yup": "^0.32.9"
   },

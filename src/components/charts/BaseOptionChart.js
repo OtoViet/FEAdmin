@@ -90,9 +90,6 @@ export default function BaseOptionChart() {
 
     // Chart
     chart: {
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      // animations: { enabled: false },
       foreColor: theme.palette.text.disabled,
       fontFamily: theme.typography.fontFamily
     },
@@ -156,7 +153,7 @@ export default function BaseOptionChart() {
     // Tooltip
     tooltip: {
       x: {
-        show: false
+        show: true
       }
     },
 
@@ -180,7 +177,7 @@ export default function BaseOptionChart() {
     plotOptions: {
       // Bar
       bar: {
-        columnWidth: '28%',
+        columnWidth: '50%',
         borderRadius: 4
       },
       // Pie + Donut

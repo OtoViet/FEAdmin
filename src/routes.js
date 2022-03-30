@@ -12,6 +12,8 @@ import User from './pages/User';
 import NotFound from './pages/Page404';
 import ProductDetail from './pages/ProductDetail';
 import FormApi from './api/formApi';
+import StoreList from './pages/StoreList';
+import Discount from './pages/Discount';
 // ----------------------------------------------------------------------
 
 const routeNotAdmin = [
@@ -23,6 +25,8 @@ const routeNotAdmin = [
       { path: 'user', element: <User /> },
       { path: 'products', element: <Products /> },
       { path: 'orders', element: <Blog /> },
+      { path: 'storeList', element: <StoreList /> },
+      { path: 'discount', element: <Discount /> },
     ]
   },
   {
@@ -47,6 +51,8 @@ const routeAdmin = [
       { path: 'products', element: <Products /> },
       { path: 'products/detail', element: <ProductDetail /> },
       { path: 'orders', element: <Blog /> },
+      { path: 'storeList', element: <StoreList /> },
+      { path: 'discount', element: <Discount /> },
       { path: '*', element: <Navigate to="/404" replace /> }
     ]
   },
@@ -65,52 +71,17 @@ const routeAdmin = [
 function Admin() {
   FormApi.checkAdmin()
     .then((res) => {
-      console.log('van dang dang nhap duoi quyen admin');
-      FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
-        .then((res) => {
-          localStorage.setItem('token', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
-          FormApi.checkAdmin()
-            .then((res) => {
-              console.log('van dang dang nhap duoi quyen admin');
-            })
-            .catch((err) => {
-              console.log('het phien dang nhap');
-              localStorage.removeItem('token');
-              localStorage.removeItem('refreshToken');
-            });
-        })
-        .catch((err) => {
-          console.log('het phien dang nhap');
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-        });
+      console.log('dang dang nhap duoi quyen admin');
     })
     .catch((err) => {
-      FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
-        .then((res) => {
-          localStorage.setItem('token', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
-          FormApi.checkAdmin()
-            .then((res) => {
-              console.log('van dang dang nhap duoi quyen admin');
-            })
-            .catch((err) => {
-              console.log('het phien dang nhap');
-              localStorage.removeItem('token');
-              localStorage.removeItem('refreshToken');
-            });
-        })
-        .catch((err) => {
-          console.log('het phien dang nhap');
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-        });
+      console.log('het phien dang nhap');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     });
 }
-function AutoRefreshToken(){
+function AutoRefreshToken() {
   console.log('goi ham refresh token');
-  if(localStorage.getItem('refreshToken')){
+  if (localStorage.getItem('refreshToken')) {
     FormApi.token({ refreshToken: localStorage.getItem('refreshToken') })
       .then((res) => {
         localStorage.setItem('token', res.accessToken);
@@ -124,13 +95,14 @@ function AutoRefreshToken(){
 }
 export default function Router() {
   const navigate = useNavigate();
+
   useEffect(() => {
-    if(!(localStorage.getItem('token') && localStorage.getItem('refreshToken'))) navigate('/login');
-  },[]);
+    if (!(localStorage.getItem('token') && localStorage.getItem('refreshToken'))) navigate('/login');
+  }, []);
   const ref = useRef();
   let isAdmin = localStorage.getItem('token') && localStorage.getItem('refreshToken') ? true : false;
   useEffect(() => {
-    const interval = setInterval(AutoRefreshToken, 15*60000)
+    const interval = setInterval(AutoRefreshToken, 15 * 60000)
     ref.current = interval
     return () => clearInterval(interval)
   }, []);

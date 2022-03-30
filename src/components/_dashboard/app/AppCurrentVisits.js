@@ -3,11 +3,13 @@ import ReactApexChart from 'react-apexcharts';
 // material
 import { useTheme, styled } from '@mui/material/styles';
 import { Card, CardHeader } from '@mui/material';
+import { Stack, CircularProgress } from '@mui/material';
 // utils
 import { fNumber } from '../../../utils/formatNumber';
 //
 import { BaseOptionChart } from '../../charts';
-
+//
+import useGetAllOrders from '../../../hooks/useGetAllOrder';
 // ----------------------------------------------------------------------
 
 const CHART_HEIGHT = 372;
@@ -31,11 +33,23 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const CHART_DATA = [4344, 5435, 1443, 4443];
 
 export default function AppCurrentVisits() {
   const theme = useTheme();
-
+  const [loading, orders] = useGetAllOrders();
+  let countService = {};
+  orders.forEach(order => {
+    order.listService.forEach(service => {
+      if (countService[service.productName]) {
+        countService[service.productName] += 1;
+      } else {
+        countService[service.productName] = 1;
+      }
+    });
+  });
+  let newArrKey = Object.keys(countService);
+  let newArrValue = Object.values(countService);
+  const CHART_DATA = newArrValue;
   const chartOptions = merge(BaseOptionChart(), {
     colors: [
       theme.palette.primary.main,
@@ -43,7 +57,7 @@ export default function AppCurrentVisits() {
       theme.palette.warning.main,
       theme.palette.error.main
     ],
-    labels: ['America', 'Asia', 'Europe', 'Africa'],
+    labels: newArrKey,
     stroke: { colors: [theme.palette.background.paper] },
     legend: { floating: true, horizontalAlign: 'center' },
     dataLabels: { enabled: true, dropShadow: { enabled: false } },
@@ -52,20 +66,30 @@ export default function AppCurrentVisits() {
       y: {
         formatter: (seriesName) => fNumber(seriesName),
         title: {
-          formatter: (seriesName) => `#${seriesName}`
+          formatter: (seriesName) => `${seriesName}`
         }
       }
     },
     plotOptions: {
       pie: { donut: { labels: { show: false } } }
+    },
+    grid: {
+      padding: {
+        bottom: 100
+      }
     }
   });
-
+  if (loading) return <>
+    <h2 style={{ textAlign: "center" }}>Đang tải danh thông tin</h2>
+    <Stack alignItems="center" mt={10}>
+      <CircularProgress size={80} />
+    </Stack>
+  </>;
   return (
     <Card>
-      <CardHeader title="Current Visits" />
+      <CardHeader title="Dịch vụ sử dụng nhiều" />
       <ChartWrapperStyle dir="ltr">
-        <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} />
+        <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={400} />
       </ChartWrapperStyle>
     </Card>
   );
