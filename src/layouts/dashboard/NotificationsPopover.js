@@ -1,10 +1,7 @@
-import faker from 'faker';
-import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { noCase } from 'change-case';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { set, sub, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { Icon } from '@iconify/react';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import clockFill from '@iconify/icons-eva/clock-fill';
@@ -14,6 +11,7 @@ import { alpha } from '@mui/material/styles';
 import {
   Box,
   List,
+  Stack,
   Badge,
   Button,
   Avatar,
@@ -24,83 +22,37 @@ import {
   ListItemText,
   ListSubheader,
   ListItemAvatar,
-  ListItemButton
+  ListItemButton,
+  CircularProgress
 } from '@mui/material';
-// utils
-import { mockImgAvatar } from '../../utils/mockImages';
 // components
 import Scrollbar from '../../components/Scrollbar';
 import MenuPopover from '../../components/MenuPopover';
 //socket
 import io from 'socket.io-client';
-
+//
+import FormApi from '../../api/formApi';
+//
+import useGetAllNotification from '../../hooks/useGetAllNotification';
 // ----------------------------------------------------------------------
-
-const NOTIFICATIONS = [
-  {
-    id: faker.datatype.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: faker.name.findName(),
-    description: 'answered to your comment on the Minimal',
-    avatar: mockImgAvatar(2),
-    type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
-    isUnRead: false
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
-    avatar: null,
-    type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
-    isUnRead: false
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
-    avatar: null,
-    type: 'order_shipped',
-    createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),
-    isUnRead: false
-  }
-];
 
 function renderContent(notification) {
   const title = (
     <Typography variant="subtitle2">
       {notification.title}
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.description)}
+        &nbsp; {notification.content}
       </Typography>
     </Typography>
   );
 
-  if (notification.type === 'order_placed') {
+  if (notification.type === 'order') {
     return {
       avatar: <img alt={notification.title} src="/static/icons/ic_notification_package.svg" />,
       title
     };
   }
-  if (notification.type === 'order_shipped') {
+  if (notification.type === 'delivery') {
     return {
       avatar: <img alt={notification.title} src="/static/icons/ic_notification_shipping.svg" />,
       title
@@ -112,7 +64,7 @@ function renderContent(notification) {
       title
     };
   }
-  if (notification.type === 'chat_message') {
+  if (notification.type === 'message') {
     return {
       avatar: <img alt={notification.title} src="/static/icons/ic_notification_chat.svg" />,
       title
@@ -140,7 +92,7 @@ function NotificationItem({ notification }) {
         py: 1.5,
         px: 2.5,
         mt: '1px',
-        ...(notification.isUnRead && {
+        ...(!notification.isRead && {
           bgcolor: 'action.selected'
         })
       }}
@@ -170,19 +122,36 @@ function NotificationItem({ notification }) {
 }
 
 export default function NotificationsPopover() {
+  const anchorRef = useRef(null);
+  const [loading, notification] = useGetAllNotification();
+  const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState(notification);
+  const [totalUnRead, setTotalUnRead] = useState(0);
+  
+  const socket = io("http://localhost:5000", { transports: ['websocket', 'polling', 'flashsocket'] });
   useEffect(() => {
-    const socket = io("http://localhost:5000", { transports: ['websocket', 'polling', 'flashsocket'] });
-    socket.on("connect", () => {
+    setNotifications(notification);
+    setTotalUnRead(notification.filter((item) => item.isRead === false).length);
+  }, [loading]);
+
+  useEffect(() => {
+    socket.once("connect", () => {
       console.log(socket.id);
     });
-    socket.on('send',function(data){
-      alert(data);
+    console.log(notifications);
+    socket.once('send', function (data) {
+      if(notifications.length > 0){
+        FormApi.createNotification(data).then(res => {
+          console.log(notifications);
+          setNotifications([...notifications, res]);
+          setTotalUnRead([...notifications, res].filter((item) => item.isRead === false).length);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      }
     })
-  }, []);
-  const anchorRef = useRef(null);
-  const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  }, [loading,notifications]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -196,11 +165,16 @@ export default function NotificationsPopover() {
     setNotifications(
       notifications.map((notification) => ({
         ...notification,
-        isUnRead: false
+        isRead: true
       }))
     );
   };
-
+  if (loading) return <>
+    <h2 style={{ textAlign: "center" }}>Đang tải thông báo</h2>
+    <Stack alignItems="center" mt={10}>
+      <CircularProgress size={30} />
+    </Stack>
+  </>;
   return (
     <>
       <IconButton
@@ -227,14 +201,14 @@ export default function NotificationsPopover() {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1">Notifications</Typography>
+            <Typography variant="subtitle1">Thông báo</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {totalUnRead} unread messages
+              Bạn có {totalUnRead} thông báo chưa xem
             </Typography>
           </Box>
 
           {totalUnRead > 0 && (
-            <Tooltip title=" Mark all as read">
+            <Tooltip title="Đánh dấu đã đọc tất cả">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
                 <Icon icon={doneAllFill} width={20} height={20} />
               </IconButton>
@@ -249,12 +223,12 @@ export default function NotificationsPopover() {
             disablePadding
             subheader={
               <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                New
+                Mới nhất
               </ListSubheader>
             }
           >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            {notifications.slice(0, 3).map((notification) => (
+              <NotificationItem key={notification._id} notification={notification} />
             ))}
           </List>
 
@@ -262,12 +236,12 @@ export default function NotificationsPopover() {
             disablePadding
             subheader={
               <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                Before that
+                Trước đây
               </ListSubheader>
             }
           >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            {notifications.slice(2, 4).map((notification) => (
+              <NotificationItem key={notification._id} notification={notification} />
             ))}
           </List>
         </Scrollbar>
@@ -275,8 +249,8 @@ export default function NotificationsPopover() {
         <Divider />
 
         <Box sx={{ p: 1 }}>
-          <Button fullWidth disableRipple component={RouterLink} to="#">
-            View All
+          <Button fullWidth disableRipple component={RouterLink} to="/notifications">
+            Xem tất cả
           </Button>
         </Box>
       </MenuPopover>

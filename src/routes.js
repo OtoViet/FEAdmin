@@ -14,6 +14,7 @@ import ProductDetail from './pages/ProductDetail';
 import FormApi from './api/formApi';
 import StoreList from './pages/StoreList';
 import Discount from './pages/Discount';
+import Notify from './pages/NotifyList';
 // ----------------------------------------------------------------------
 
 const routeNotAdmin = [
@@ -27,6 +28,7 @@ const routeNotAdmin = [
       { path: 'orders', element: <Blog /> },
       { path: 'storeList', element: <StoreList /> },
       { path: 'discount', element: <Discount /> },
+      { path: 'notifications', element: <Notify /> },
     ]
   },
   {
@@ -53,6 +55,7 @@ const routeAdmin = [
       { path: 'orders', element: <Blog /> },
       { path: 'storeList', element: <StoreList /> },
       { path: 'discount', element: <Discount /> },
+      { path: 'notifications', element: <Notify /> },
       { path: '*', element: <Navigate to="/404" replace /> }
     ]
   },

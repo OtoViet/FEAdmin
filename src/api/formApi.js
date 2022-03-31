@@ -131,5 +131,13 @@ const formApi={
         const url ='/admin/deleteDiscount/'+id;
         return axiosClient.delete(url);
     },
+    createNotification: function(body){
+        const url ='/admin/createNotification';
+        return axiosClient.post(url,body);
+    },
+    getAllNotification: function(){
+        const url ='/admin/getAllNotification';
+        return axiosClient.get(url);
+    }
 }
 export default formApi;
