@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
@@ -27,6 +26,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import { Icon } from '@iconify/react';
 import { formatDistanceToNow } from 'date-fns';
+import viLocale from 'date-fns/locale/vi';
 import clockFill from '@iconify/icons-eva/clock-fill';
 
 function TablePaginationActions(props) {
@@ -130,7 +130,6 @@ function renderContent(notification) {
 }
 
 function Detail({ notifications }) {
-    const navigate = useNavigate();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(4);
 
@@ -162,7 +161,7 @@ function Detail({ notifications }) {
                                 <TableRow key={index}>
                                     <TableCell>
                                         <ListItemButton
-                                            to="#"
+                                            to={"/orders/order/"+row.detail.idOrder}
                                             disableGutters
                                             component={RouterLink}
                                         >
@@ -182,7 +181,7 @@ function Detail({ notifications }) {
                                                         }}
                                                     >
                                                         <Box component={Icon} icon={clockFill} sx={{ mr: 0.5, width: 16, height: 16 }} />
-                                                        {formatDistanceToNow(new Date(row.createdAt))}
+                                                        {formatDistanceToNow(new Date(row.createdAt),{locale: viLocale})}
                                                     </Typography>
                                                 }
                                             />

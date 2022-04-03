@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useRef, useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import viLocale from 'date-fns/locale/vi';
 import { Icon } from '@iconify/react';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import clockFill from '@iconify/icons-eva/clock-fill';
@@ -52,6 +53,12 @@ function renderContent(notification) {
       title
     };
   }
+  if (notification.type === 'orderCancel') {
+    return {
+      avatar: <img alt={notification.title} src="/static/icons/ic_notification_package.svg" />,
+      title
+    };
+  }
   if (notification.type === 'delivery') {
     return {
       avatar: <img alt={notification.title} src="/static/icons/ic_notification_shipping.svg" />,
@@ -85,7 +92,7 @@ function NotificationItem({ notification }) {
 
   return (
     <ListItemButton
-      to="#"
+      to={"/orders/order/" + notification.detail.idOrder}
       disableGutters
       component={RouterLink}
       sx={{
@@ -113,7 +120,7 @@ function NotificationItem({ notification }) {
             }}
           >
             <Box component={Icon} icon={clockFill} sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {formatDistanceToNow(new Date(notification.createdAt))}
+            {formatDistanceToNow(new Date(notification.createdAt), { locale: viLocale })}
           </Typography>
         }
       />
@@ -127,8 +134,8 @@ export default function NotificationsPopover() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(notification);
   const [totalUnRead, setTotalUnRead] = useState(0);
-  
   const socket = io("http://localhost:5000", { transports: ['websocket', 'polling', 'flashsocket'] });
+
   useEffect(() => {
     setNotifications(notification);
     setTotalUnRead(notification.filter((item) => item.isRead === false).length);
@@ -138,20 +145,16 @@ export default function NotificationsPopover() {
     socket.once("connect", () => {
       console.log(socket.id);
     });
-    console.log(notifications);
+  }, []);
+
+  useEffect(() => {
     socket.once('send', function (data) {
-      if(notifications.length > 0){
-        FormApi.createNotification(data).then(res => {
-          console.log(notifications);
-          setNotifications([...notifications, res]);
-          setTotalUnRead([...notifications, res].filter((item) => item.isRead === false).length);
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      if (!loading) {
+        setNotifications([...notifications, data]);
+        setTotalUnRead([...notifications, data].filter((item) => item.isRead === false).length);
       }
-    })
-  }, [loading,notifications]);
+    });
+  }, [notifications]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -172,7 +175,7 @@ export default function NotificationsPopover() {
   if (loading) return <>
     <h2 style={{ textAlign: "center" }}>Đang tải thông báo</h2>
     <Stack alignItems="center" mt={10}>
-      <CircularProgress size={30} />
+      <CircularProgress size={20} />
     </Stack>
   </>;
   return (

@@ -1,9 +1,9 @@
 import { format, formatDistanceToNow } from 'date-fns';
-
+import viLocale from 'date-fns/locale/vi';
 // ----------------------------------------------------------------------
 
 export function fDate(date) {
-  return format(new Date(date), 'dd MMMM yyyy');
+  return format(new Date(date), 'dd MMMM yyyy', { locale: viLocale });
 }
 
 export function fDateTime(date) {

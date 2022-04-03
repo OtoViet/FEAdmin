@@ -18,6 +18,9 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { styled } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import FormApi from '../api/formApi';
 import * as Yup from 'yup';
 import ResponsiveDialog from './Dialog';
@@ -29,11 +32,22 @@ export default function FormDialog(props) {
     const [contentDialog, setContentDialog] = useState(null);
     const [titleDialog, setTitleDialog] = useState(null);
     const [image, setImage] = useState([]);
+    const [combo, setCombo] = useState([]);
     useEffect(() => {
         if (product) {
             return props.parentCallback(product);
         }
     }, [product]);
+    const handleChangeCombo = (event) => {
+        if(event.target.checked){
+            setCombo([...combo, event.target.value]);
+            formik.setFieldValue('combo', [...combo, event.target.value]);
+        }
+        else{
+            setCombo(combo.filter(item => item !== event.target.value));
+            formik.setFieldValue('combo', combo.filter(item => item !== event.target.value));
+        }
+    };
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -42,7 +56,6 @@ export default function FormDialog(props) {
     });
     const signUpSchema = Yup.object().shape({
         productName: Yup.string().required('Vui lòng nhập tên sp/dv'),
-        combo: Yup.string().required('Vui lòng nhập combo kết hợp'),
         description: Yup.string().required('Vui lòng nhập thông tin miêu tả sản phẩm/dv'),
         price: Yup.number().typeError('Vui lòng nhập số').required('Vui lòng nhập giá tiền sp/dv'),
         image: Yup.string().required('Vui lòng chọn ảnh'),
@@ -67,8 +80,8 @@ export default function FormDialog(props) {
             let url = "https://api.cloudinary.com/v1_1/dq7zeyepu/image/upload";
             let file = values.image;
             let listImage = [];
-            for(let it=0; it<file.length; it++){
-                try{
+            for (let it = 0; it < file.length; it++) {
+                try {
                     let formData = new FormData();
                     formData.append("file", file[it]);
                     formData.append("upload_preset", "kkurekfz");
@@ -78,24 +91,17 @@ export default function FormDialog(props) {
                         body: formData
                     });
                     let data = await dataRes.json();
-                    listImage.push({url: data.secure_url});
+                    listImage.push({ url: data.secure_url });
 
                 }
-                catch(error) {
-                    console.log('co loi xay ra khi upload anh',error);
+                catch (error) {
+                    console.log('co loi xay ra khi upload anh', error);
                     setTitleDialog('Thông báo');
                     setContentDialog('Có lỗi xảy ra khi upload ảnh');
                 };
             }
             const ProductData = values;
-            let comboValues = values.combo.split(',');
-            let newCombo = comboValues.map(item => {
-                return {
-                    comboName: item
-                }
-            });
             ProductData.images = listImage;
-            ProductData.combo = newCombo;
             FormApi.addNewProduct(ProductData).then(res => {
                 setProduct(res);
                 setDialog(true);
@@ -184,29 +190,22 @@ export default function FormDialog(props) {
                                 </Stack>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id="combo"
-                                    label="Nhập combo kết hợp"
-                                    name="combo"
-                                    value={formik.values.combo}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.combo && Boolean(formik.errors.combo)}
-                                    helperText={formik.touched.combo && formik.errors.combo}
-                                />
+                                <FormGroup>
+                                    <FormControlLabel control={<Checkbox name="combo" onChange={handleChangeCombo} value="combo1" />} label="Combo 1" />
+                                    <FormControlLabel control={<Checkbox name="combo" onChange={handleChangeCombo} value="combo2" />} label="Combo 2" />
+                                    <FormControlLabel control={<Checkbox name="combo" onChange={handleChangeCombo} value="combo3" />} label="Combo 3" />
+                                </FormGroup>
                             </Grid>
-                            {image.length>0 ? <Stack alignItems="center" ml={2}>
+                            {image.length > 0 ? <Stack alignItems="center" ml={2}>
                                 <ImageList sx={{ width: 550, height: 500 }} cols={3} rowHeight={164}>
                                     {image.map((item, index) => (
                                         <ImageListItem key={index}>
-                                        <img
-                                            src={`${item}`}
-                                            srcSet={`${item}`}
-                                            alt={`Hinh anh ${index}`}
-                                            loading="lazy"
-                                        />
+                                            <img
+                                                src={`${item}`}
+                                                srcSet={`${item}`}
+                                                alt={`Hinh anh ${index}`}
+                                                loading="lazy"
+                                            />
                                         </ImageListItem>
                                     ))}
                                 </ImageList>

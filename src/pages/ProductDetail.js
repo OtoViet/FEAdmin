@@ -12,6 +12,9 @@ import {
     Container, Stack, Typography, ImageList, ImageListItem, IconButton,
     Grid, TextField, Button, Box
 } from '@mui/material';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import DeleteIcon from '@mui/icons-material/Delete';
 // components
 import Page from '../components/Page';
@@ -28,7 +31,7 @@ export default function EcommerceShop(props) {
     const [imageList, setImageList] = useState(state.images);
     const [isDelete, setIsDelete] = useState(false);
     const [isAccept, setAccept] = useState(false);
-
+    const [combo, setCombo] = useState(state.combo);
     const handleAcceptDelete = (status) => {
         setIsDelete(status);
     };
@@ -37,15 +40,24 @@ export default function EcommerceShop(props) {
     });
     const signUpSchema = Yup.object().shape({
         productName: Yup.string().required('Vui lòng nhập tên sp/dv'),
-        combo: Yup.string().required('Vui lòng nhập combo kết hợp'),
         description: Yup.string().required('Vui lòng nhập thông tin miêu tả sản phẩm/dv'),
         price: Yup.number().typeError('Vui lòng nhập số').required('Vui lòng nhập giá tiền sp/dv'),
         image: Yup.string().required('Vui lòng chọn ảnh'),
     });
+    const handleChangeCombo = (event) => {
+        if(event.target.checked){
+            setCombo([...combo, event.target.value]);
+            formik.setFieldValue('combo', [...combo, event.target.value]);
+        }
+        else{
+            setCombo(combo.filter(item => item !== event.target.value));
+            formik.setFieldValue('combo', combo.filter(item => item !== event.target.value));
+        }
+    };
     const handleAccept = (status) => {
         setAccept(status);
         console.log(status);
-        if(status){
+        if (status) {
             FormApi.deleteProduct(state._id).then(res => {
                 console.log(res);
                 setDialog(true);
@@ -53,31 +65,20 @@ export default function EcommerceShop(props) {
                 setContentDialog('Xóa sản phẩm/dịch vụ thành công');
                 navigate('/products');
             })
-            .catch(err => {
-                setTitleDialog('Thông báo');
-                setContentDialog('Xóa sản phẩm/dịch vụ thất bại');
-            });
+                .catch(err => {
+                    setTitleDialog('Thông báo');
+                    setContentDialog('Xóa sản phẩm/dịch vụ thất bại');
+                });
         }
     };
     const handleDeleteProduct = (product) => {
         setIsDelete(true);
     };
-    const formatCombo = (value) => {
-        let stringCombo = '';
-        value.forEach((item, index) => {
-            if (index === 0) {
-                stringCombo += item.comboName;
-            } else {
-                stringCombo += `, ${item.comboName}`;
-            }
-        });
-        return stringCombo;
-    }
     const formik = useFormik({
         initialValues: {
             productName: state.productName || '',
             price: state.price || '',
-            combo: formatCombo(state.combo) || '',
+            combo: state.combo || [],
             description: state.description || '',
             image: '',
         },
@@ -109,15 +110,8 @@ export default function EcommerceShop(props) {
                 };
             }
             const ProductData = values;
-            let comboValues = values.combo.split(',');
-            let newCombo = comboValues.map(item => {
-                return {
-                    comboName: item
-                }
-            });
             ProductData.images = listImage;
-            ProductData.combo = newCombo;
-            FormApi.updateProduct(ProductData,state._id).then(res => {
+            FormApi.updateProduct(ProductData, state._id).then(res => {
                 setImageList(res.images);
                 setDialog(true);
                 setTitleDialog('Thông báo');
@@ -211,18 +205,11 @@ export default function EcommerceShop(props) {
                                 </Stack>
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id="combo"
-                                    label="Nhập combo kết hợp"
-                                    name="combo"
-                                    value={formik.values.combo}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.combo && Boolean(formik.errors.combo)}
-                                    helperText={formik.touched.combo && formik.errors.combo}
-                                />
+                                <FormGroup>
+                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo1")} onChange={handleChangeCombo} value="combo1" />} label="Combo 1" />
+                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo2")} onChange={handleChangeCombo} value="combo2" />} label="Combo 2" />
+                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo3")} onChange={handleChangeCombo} value="combo3" />} label="Combo 3" />
+                                </FormGroup>
                             </Grid>
                             {image.length > 0 ? <Stack alignItems="center" ml={2}>
                                 <ImageList sx={{ width: 550, height: 500 }} cols={3} rowHeight={164}>
@@ -261,15 +248,15 @@ export default function EcommerceShop(props) {
 
                     </Box>
                 </div>
-                <Typography variant="h5" sx={{ mb: 5, mt:5 }}>
+                <Typography variant="h5" sx={{ mb: 5, mt: 5 }}>
                     Xóa sản phẩm/dịch vụ
                 </Typography>
-                {isDelete? <DialogAcceptResponsive 
-                parentAccept={handleAccept}
-                parentCallbackDelete={handleAcceptDelete} open={isDelete}/> : null}
+                {isDelete ? <DialogAcceptResponsive
+                    parentAccept={handleAccept}
+                    parentCallbackDelete={handleAcceptDelete} open={isDelete} /> : null}
 
                 <Button variant="contained" startIcon={<DeleteIcon />}
-                onClick={handleDeleteProduct}>
+                    onClick={handleDeleteProduct}>
                     Xóa sản phẩm/dịch vụ
                 </Button>
             </Container>

@@ -7,7 +7,7 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 import Login from './pages/Login';
 import DashboardApp from './pages/DashboardApp';
 import Products from './pages/Products';
-import Blog from './pages/Blog';
+import Schedules from './pages/Schedules';
 import User from './pages/User';
 import NotFound from './pages/Page404';
 import ProductDetail from './pages/ProductDetail';
@@ -15,6 +15,7 @@ import FormApi from './api/formApi';
 import StoreList from './pages/StoreList';
 import Discount from './pages/Discount';
 import Notify from './pages/NotifyList';
+import SchedulesDetail from './pages/ScheduleDetail';
 // ----------------------------------------------------------------------
 
 const routeNotAdmin = [
@@ -25,7 +26,8 @@ const routeNotAdmin = [
       { path: '', element: <DashboardApp /> },
       { path: 'user', element: <User /> },
       { path: 'products', element: <Products /> },
-      { path: 'orders', element: <Blog /> },
+      { path: 'orders', element: <Schedules /> },
+      { path: 'orders/order/:id', element: <SchedulesDetail /> },
       { path: 'storeList', element: <StoreList /> },
       { path: 'discount', element: <Discount /> },
       { path: 'notifications', element: <Notify /> },
@@ -52,7 +54,8 @@ const routeAdmin = [
       { path: 'user', element: <User /> },
       { path: 'products', element: <Products /> },
       { path: 'products/detail', element: <ProductDetail /> },
-      { path: 'orders', element: <Blog /> },
+      { path: 'orders', element: <Schedules /> },
+      { path: 'orders/order/:id', element: <SchedulesDetail /> },
       { path: 'storeList', element: <StoreList /> },
       { path: 'discount', element: <Discount /> },
       { path: 'notifications', element: <Notify /> },
