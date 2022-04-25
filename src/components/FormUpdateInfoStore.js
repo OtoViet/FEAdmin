@@ -26,7 +26,7 @@ export default function FormDialog(props) {
         longitude: Yup.string().required('Vui lòng nhập kinh độ'),
         latitude: Yup.string().required('Vui lòng nhập vĩ độ'),
         name: Yup.string().required('Vui lòng nhập tên cửa hàng'),
-        numOfStore: Yup.number().required('Vui lòng nhập thứ tự cửa hàng'),
+        numOfStore: Yup.number().typeError('Vui lòng nhập số').required('Vui lòng nhập thứ tự cửa hàng'),
         phoneNumber: Yup.number().typeError('Vui lòng nhập số').required('Vui lòng nhập số điện thoại').min(100000000, 'Số điện thoại không hợp lệ'),
     });
     const handleClose = () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 // material
 import { Container, Stack, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -14,8 +15,12 @@ import Box from '@mui/material/Box';
 import { useParams } from 'react-router-dom';
 // components
 import Page from '../components/Page';
+import Dialog from '../components/DialogNotify';
+import DialogConfirm from '../components/DialogConfirm';
 //
+import FormApi from '../api/formApi';
 import useGetOrderById from '../hooks/useGetOrderById';
+import useGetNotifyByOrderId from '../hooks/useGetNotifyByOrderId';
 import useGetAllStore from '../hooks/useGetAllStore.js';
 // ----------------------------------------------------------------------
 
@@ -42,8 +47,85 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function Notify() {
   const params = useParams();
   const [loading, order] = useGetOrderById(params.id);
+  const [loadingNotify, notify] = useGetNotifyByOrderId(params.id);
   const [loadingStore, stores] = useGetAllStore();
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const [openDialogCanCelOrder, setOpenDialogCanCelOrder] = useState(false);
 
+
+  const handleCloseDialog = (status) => {
+    setOpen(status);
+  };
+  const handleClick = () => {
+    setOpenDialogConfirm(true);
+  };
+  const handleCloseDialogConfirm = (status) => {
+    setOpenDialogConfirm(status);
+  };
+  const handleCloseDialogConfirmCancel = (status) => {
+    setOpenDialogCanCelOrder(status);
+  };
+
+  const handleClickCancel = () => {
+    setOpenDialogCanCelOrder(true);
+  };
+  const handleAccept = (value) => {
+    if (value) {
+      FormApi.confirmOrder(params.id)
+        .then(() => {
+          setOpen(true);
+          setContent('Đơn hàng đã được xác nhận');
+          if (!loadingNotify) {
+            if (notify.expoPushToken) {
+              const message = {
+                to: notify.expoPushToken,
+                sound: 'default',
+                title: 'Thông báo',
+                body: 'Bạn có lịch hẹn vừa được xác nhận',
+                data: { idOrder: params.id },
+              };
+
+              fetch('https://exp.host/--/api/v2/push/send', {
+                method: 'POST',
+                mode : 'no-cors',
+                headers: {
+                  'Authorization': 'No Auth',
+                  'Accept': 'application/json',
+                  'Accept-encoding': 'gzip, deflate',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message),
+              })
+              .then((data)=>{
+                console.log(data);
+              })
+              .catch(err=>{
+                console.log(err);
+              })
+            }
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          setContent('Có lỗi xảy ra trong quá trình xác nhận lịch hẹn');
+        });
+    }
+  };
+  const handleAcceptCancel = (value) => {
+    if (value) {
+      FormApi.cancelOrder(params.id)
+        .then(() => {
+          setOpen(true);
+          setContent('Lịch hẹn đã được hủy');
+        })
+        .catch(err => {
+          console.log(err);
+          setContent('Có lỗi xảy ra trong quá trình hủy lịch hẹn');
+        });
+    }
+  };
   if (loading || loadingStore) return <>
     <h2 style={{ textAlign: "center" }}>Đang tải thông tin</h2>
     <Stack alignItems="center" mt={10}>
@@ -51,13 +133,33 @@ export default function Notify() {
     </Stack>
   </>;
   let status = "";
-  if (order.isConfirmed) status = "Đã xác nhận"
+  if (order.isConfirmed && order.requireCancel) status = "Khách hàng yêu cầu hủy"
+  else if (order.isConfirmed) status = "Đã xác nhận"
   else if (order.isCanceled) status = "Đã hủy"
   else if (order.isCompleted) status = "Đã hoàn thành"
   else status = "Chưa xác nhận"
   return (
     <Page title="Chi tiết lịch hẹn">
       <Container>
+        {open ? <Dialog open={open}
+          handleCloseDialog={handleCloseDialog}
+          title="Thông báo"
+          url="/orders"
+          content={content} /> : null}
+
+        {openDialogConfirm ? <DialogConfirm open={openDialogConfirm}
+          isAccept={handleAccept}
+          handleCloseDialog={handleCloseDialogConfirm}
+          title="Thông báo"
+          url={"/orders"} cancel="Hủy bỏ" accept="Xác nhận"
+          content={"Xác nhận lịch hẹn này?"} /> : null}
+
+        {openDialogCanCelOrder ? <DialogConfirm open={openDialogCanCelOrder}
+          isAccept={handleAcceptCancel}
+          handleCloseDialog={handleCloseDialogConfirmCancel}
+          title="Thông báo"
+          url={"/orders"} cancel="Hủy bỏ" accept="Xác nhận"
+          content={"Xác nhận hủy bỏ lịch hẹn này?"} /> : null}
         <Typography variant="h4" sx={{ mb: 5 }}>
           Chi tiết lịch hẹn
         </Typography>
@@ -115,8 +217,8 @@ export default function Notify() {
                 <StyledTableCell component="th" scope="row">
                   Địa chỉ cửa hàng khách chọn
                 </StyledTableCell>
-                <StyledTableCell align="right">{stores.map(item=>{
-                  if(item.numOfStore == order.storeAddress) return item.address
+                <StyledTableCell align="right">{stores.map(item => {
+                  if (item.numOfStore == order.storeAddress) return item.address
                 })}</StyledTableCell>
               </StyledTableRow>
               <StyledTableRow >
@@ -138,11 +240,21 @@ export default function Notify() {
         </TableContainer>
         {
           !order.isCanceled && !order.isCompleted && !order.isConfirmed ?
-          <Box textAlign="center">
-            <Button variant="contained">
-              Xác nhận
-            </Button>
-          </Box>: null
+            <Box textAlign="center">
+              <Button variant="contained"
+                onClick={handleClick}>
+                Xác nhận
+              </Button>
+            </Box> : null
+        }
+        {
+          order.requireCancel ?
+            <Box textAlign="center">
+              <Button variant="contained"
+                onClick={handleClickCancel}>
+                Hủy lịch hẹn
+              </Button>
+            </Box> : null
         }
       </Container>
     </Page>

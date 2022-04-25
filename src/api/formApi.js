@@ -112,8 +112,16 @@ const formApi={
         return axiosClient.get(url);
     },
     getAllOrder: function(){
-        const url ='/order/getAllOrder';
+        const url ='/admin/getAllOrder';
         return axiosClient.get(url);
+    },
+    confirmOrder: function(id){
+        const url ='/admin/confirmOrder/'+id;
+        return axiosClient.patch(url);
+    },
+    cancelOrder: function(id){
+        const url ='/admin/cancelOrder/'+id;
+        return axiosClient.patch(url);
     },
     getOrderById: function(id){
         const url ='/order/getOrderById/'+id;
@@ -141,6 +149,10 @@ const formApi={
     },
     getAllNotification: function(){
         const url ='/admin/getAllNotification';
+        return axiosClient.get(url);
+    },
+    getNotificationByOrderId: function(id){
+        const url ='/admin/getNotificationByOrderId/'+id;
         return axiosClient.get(url);
     }
 }

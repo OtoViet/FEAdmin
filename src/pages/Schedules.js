@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useFormik } from 'formik';
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import { Grid, CircularProgress, Container, Stack, Typography } from '@mui/material';
 // components
 import Pagination from '../components/Pagination';
 import Page from '../components/Page';
-import { SchedulesCard, SchedulesSort, SchedulesSearch } from '../components/_dashboard/schedules';
+import {
+  SchedulesCard, SchedulesSort, SchedulesSearch,
+  ScheduleFilterSidebar
+} from '../components/_dashboard/schedules';
 //
 import useGetAllOrder from '../hooks/useGetAllOrder';
 // ----------------------------------------------------------------------
@@ -20,10 +24,65 @@ const SORT_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function Schedules() {
+  const [openFilter, setOpenFilter] = useState(false);
   const [loading, orders] = useGetAllOrder();
   const [pages, setPages] = useState(1);
   const [orderList, setOrderList] = useState([]);
-  const [data, setData] = useState(Math.random());
+
+  const formik = useFormik({
+    initialValues: {
+      confirm: ''
+    },
+    onSubmit: (value) => {
+      if (value.confirm == 'confirmed') {
+        if (!loading) {
+          let newOrderList = orders;
+          setOrderList(newOrderList.filter(order => order.isConfirmed == true));
+        }
+      }
+      else if (value.confirm == 'canceled') {
+        let newOrderList = orders;
+        setOrderList(newOrderList.filter(order => order.isCanceled == true));
+      }
+      else if (value.confirm == '') {
+        if (!loading) {
+          setOrderList(orders.sort(function (a, b) {
+            let dateA = new Date(a.createdAt);
+            let dateB = new Date(b.createdAt);
+            if (dateA < dateB) return 1;
+            if (dateA > dateB) return -1;
+            return 0;
+          }));
+        }
+      }
+      else {
+        if (!loading) {
+          let newOrderList = orders;
+          setOrderList(newOrderList.filter(order => (order.isConfirmed == false) && (order.isCanceled == false)));
+        }
+      }
+      setOpenFilter(false);
+    }
+  });
+
+  const { resetForm, handleSubmit } = formik;
+  const handleOpenFilter = () => {
+    setOpenFilter(true);
+  };
+  const handleCloseFilter = () => {
+    setOpenFilter(false);
+  };
+  const handleResetFilter = () => {
+    handleSubmit();
+    resetForm();
+    setOrderList(orders.sort(function (a, b) {
+      let dateA = new Date(a.createdAt);
+      let dateB = new Date(b.createdAt);
+      if (dateA < dateB) return 1;
+      if (dateA > dateB) return -1;
+      return 0;
+    }));
+  };
   useEffect(() => {
     setOrderList(orders.sort(function (a, b) {
       let dateA = new Date(a.createdAt);
@@ -57,29 +116,26 @@ export default function Schedules() {
         break;
       case 'highPrice':
         dataSort = orderList.sort(function (a, b) {
-          if(a.totalPrice < b.totalPrice) return 1;
-          if(a.totalPrice > b.totalPrice) return -1;
+          if (a.totalPrice < b.totalPrice) return 1;
+          if (a.totalPrice > b.totalPrice) return -1;
           return 0;
         });
         break;
       case 'lowPrice':
         dataSort = orderList.sort(function (a, b) {
-          if(a.totalPrice < b.totalPrice) return -1;
-          if(a.totalPrice > b.totalPrice) return 1;
+          if (a.totalPrice < b.totalPrice) return -1;
+          if (a.totalPrice > b.totalPrice) return 1;
           return 0;
         });
         break;
       default:
         return;
     };
-    console.log(dataSort);
     setOrderList([...dataSort]);
   };
-  console.log(orderList);
   const handleClickPagination = (value) => {
     setPages(value);
   };
-  console.log(orders);
   if (loading) return <>
     <h2 style={{ textAlign: "center" }}>Đang tải danh sách lịch hẹn</h2>
     <Stack alignItems="center" mt={10}>
@@ -94,9 +150,15 @@ export default function Schedules() {
             Danh sách lịch hẹn
           </Typography>
         </Stack>
-
         <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
           <SchedulesSearch orders={orderList} />
+          <ScheduleFilterSidebar
+            formik={formik}
+            isOpenFilter={openFilter}
+            onResetFilter={handleResetFilter}
+            onOpenFilter={handleOpenFilter}
+            onCloseFilter={handleCloseFilter}
+          />
           <SchedulesSort options={SORT_OPTIONS}
             onSort={handleSort} />
         </Stack>

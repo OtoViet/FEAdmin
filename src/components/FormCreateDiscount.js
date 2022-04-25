@@ -98,7 +98,7 @@ export default function FormDialog(props) {
         },
         validationSchema: signUpSchema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            // alert(JSON.stringify(values, null, 2));
             FormApi.createDiscount(values).then(res => {
                 setDialog(true);
                 setDiscount(res);
@@ -162,6 +162,7 @@ export default function FormDialog(props) {
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DesktopDatePicker
                                         label="Ngày hết hạn"
+                                        minDate={new Date()}
                                         required
                                         inputFormat="dd/MM/yyyy"
                                         value={valueDate}

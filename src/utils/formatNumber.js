@@ -15,7 +15,8 @@ import numeral from 'numeral';
 // // switch between locales
 // numeral.locale('vi');
 export function fCurrency(number) {
-  return numeral(number).format(Number.isInteger(number) ? '0,0$' : '0,0.00$');
+  // return numeral(number).format(Number.isInteger(number) ? '0,0$' : '0,0.00$');
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 }
 
 export function fPercent(number) {
