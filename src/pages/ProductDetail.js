@@ -1,8 +1,17 @@
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import useGetProductById from '../hooks/useGetProductById';
 import FormApi from '../api/formApi';
 import * as Yup from 'yup';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TablePagination from '@mui/material/TablePagination';
 import ResponsiveDialog from '../components/Dialog';
 import DialogAcceptResponsive from '../components/DialogAcceptResponsive';
 // material
@@ -10,28 +19,58 @@ import { styled } from '@mui/material/styles';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import {
     Container, Stack, Typography, ImageList, ImageListItem, IconButton,
-    Grid, TextField, Button, Box
+    Grid, TextField, Button, Box, CircularProgress
 } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DialogNotify from '../components/DialogNotify';
 // components
 import Page from '../components/Page';
 
 // ----------------------------------------------------------------------
+function Row(props) {
+    const { row } = props;
 
-export default function EcommerceShop(props) {
+    return (
+        <>
+            <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+                <TableCell component="th" scope="row">
+                    {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'full', timeStyle: 'medium' }).format(new Date(row.dataRow.createdAt))}
+                </TableCell>
+                <TableCell align="right">
+                    {row.infoCustomer.fullName}
+                </TableCell>
+                <TableCell align="right">
+                    {row.dataRow.comment}
+                </TableCell>
+                <TableCell align="right">
+                    <Button variant="text" color="primary" onClick={() => props.onClick(row.infoCustomer)}>
+                        Xem chi tiết
+                    </Button>
+                </TableCell>
+            </TableRow>
+        </>
+    );
+}
+
+export default function ProductDetail(props) {
     const navigate = useNavigate();
     const [dialog, setDialog] = useState(false);
     const [contentDialog, setContentDialog] = useState(null);
     const [titleDialog, setTitleDialog] = useState(null);
     const [image, setImage] = useState([]);
     const { state } = useLocation();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [loading, productListcoment] = useGetProductById(state._id);
     const [imageList, setImageList] = useState(state.images);
     const [isDelete, setIsDelete] = useState(false);
     const [isAccept, setAccept] = useState(false);
     const [combo, setCombo] = useState(state.combo);
+    const [open, setOpen]  = useState(false);
+    const [infoCustomer, setInfoCustomer] = useState(null);
     const handleAcceptDelete = (status) => {
         setIsDelete(status);
     };
@@ -45,11 +84,11 @@ export default function EcommerceShop(props) {
         image: Yup.string().required('Vui lòng chọn ảnh'),
     });
     const handleChangeCombo = (event) => {
-        if(event.target.checked){
+        if (event.target.checked) {
             setCombo([...combo, event.target.value]);
             formik.setFieldValue('combo', [...combo, event.target.value]);
         }
-        else{
+        else {
             setCombo(combo.filter(item => item !== event.target.value));
             formik.setFieldValue('combo', combo.filter(item => item !== event.target.value));
         }
@@ -70,6 +109,19 @@ export default function EcommerceShop(props) {
                     setContentDialog('Xóa sản phẩm/dịch vụ thất bại');
                 });
         }
+    };
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleClick = (infoCustomer) => {
+        setOpen(true);
+        let infoFormat = `${infoCustomer.fullName} - ${infoCustomer.phoneNumber} - ${infoCustomer.email}`;
+        setInfoCustomer(infoFormat);
+    };
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(+event.target.value);
+        setPage(0);
     };
     const handleDeleteProduct = (product) => {
         setIsDelete(true);
@@ -133,8 +185,17 @@ export default function EcommerceShop(props) {
         setImage(arrayImages);
         formik.setFieldValue('image', e.target.files);
     };
+    if (loading) return <>
+        <h2 style={{ textAlign: "center" }}>Đang tải thông tin</h2>
+        <Stack alignItems="center" mt={10}>
+            <CircularProgress size={80} />
+        </Stack>
+    </>;
     return (
         <Page title="Chi tiết sp/dv">
+            {open ? <DialogNotify open={open} title={"Chi tiết"} 
+            handleCloseDialog={(status)=>setOpen(status)}
+            content={infoCustomer} /> : null}
             <Container>
                 <Typography variant="h4" sx={{ mb: 5 }}>
                     Chi tiết sản phẩm/dịch vụ
@@ -142,7 +203,7 @@ export default function EcommerceShop(props) {
                 <Typography variant="h5" sx={{ mb: 5 }}>
                     Danh sách hình ảnh sản phẩm/dịch vụ
                 </Typography>
-                <ImageList sx={{ width: 500, height: 350 }} cols={3} rowHeight={164}>
+                <ImageList sx={{ width: 500, height: 200 }} cols={3} rowHeight={164}>
                     {imageList.map((item, index) => (
                         <ImageListItem key={index}>
                             <img
@@ -154,6 +215,43 @@ export default function EcommerceShop(props) {
                         </ImageListItem>
                     ))}
                 </ImageList>
+                <Typography variant="h5" sx={{ mt: 5, mb: 5 }}>
+                    Danh sách bình luận tiêu cực (đánh giá có số sao nhỏ hơn 3)
+                </Typography>
+                <Paper sx={{ width: '100%' }}>
+                    <TableContainer component={Paper}>
+                        <Table stickyHeader aria-label="collapsible table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Thời gian bình luận</TableCell>
+                                    <TableCell align="right">Tên khách hàng</TableCell>
+                                    <TableCell align="right">Nội dung bình luận</TableCell>
+                                    <TableCell align="right">Chi tiết</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {state.rating
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((row, index) => {
+                                        if(row.rating<3) return <Row key={index} 
+                                        row={{dataRow: row, infoCustomer: productListcoment.infoUserComment[index]}} 
+                                        onClick={handleClick} />;
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[1, 2, 5]}
+                        component="div"
+                        count={state.rating.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        labelDisplayedRows={({ from, to, count }) => `${from}-${to} trong ${count}`}
+                        labelRowsPerPage="Số dòng trên trang"
+                    />
+                </Paper>
                 <Typography variant="h5" sx={{ mb: 5 }}>
                     Cập nhật thông tin sản phẩm/dịch vụ
                 </Typography>
@@ -206,9 +304,9 @@ export default function EcommerceShop(props) {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <FormGroup>
-                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo1")} onChange={handleChangeCombo} value="combo1" />} label="Combo 1" />
-                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo2")} onChange={handleChangeCombo} value="combo2" />} label="Combo 2" />
-                                    <FormControlLabel control={<Checkbox name="combo" checked ={combo.includes("combo3")} onChange={handleChangeCombo} value="combo3" />} label="Combo 3" />
+                                    <FormControlLabel control={<Checkbox name="combo" checked={combo.includes("combo1")} onChange={handleChangeCombo} value="combo1" />} label="Combo 1" />
+                                    <FormControlLabel control={<Checkbox name="combo" checked={combo.includes("combo2")} onChange={handleChangeCombo} value="combo2" />} label="Combo 2" />
+                                    <FormControlLabel control={<Checkbox name="combo" checked={combo.includes("combo3")} onChange={handleChangeCombo} value="combo3" />} label="Combo 3" />
                                 </FormGroup>
                             </Grid>
                             {image.length > 0 ? <Stack alignItems="center" ml={2}>

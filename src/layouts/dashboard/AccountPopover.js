@@ -1,8 +1,8 @@
 import { Icon } from '@iconify/react';
 import { useRef, useState } from 'react';
 import homeFill from '@iconify/icons-eva/home-fill';
-import personFill from '@iconify/icons-eva/person-fill';
-import settings2Fill from '@iconify/icons-eva/settings-2-fill';
+// import personFill from '@iconify/icons-eva/person-fill';
+// import settings2Fill from '@iconify/icons-eva/settings-2-fill';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import FormApi from '../../api/formApi';
 // material
@@ -21,16 +21,16 @@ const MENU_OPTIONS = [
     icon: homeFill,
     linkTo: '/'
   },
-  {
-    label: 'Tài khoản',
-    icon: personFill,
-    linkTo: '#'
-  },
-  {
-    label: 'Cài đặt',
-    icon: settings2Fill,
-    linkTo: '#'
-  }
+  // {
+  //   label: 'Tài khoản',
+  //   icon: personFill,
+  //   linkTo: '#'
+  // },
+  // {
+  //   label: 'Cài đặt',
+  //   icon: settings2Fill,
+  //   linkTo: '#'
+  // }
 ];
 
 // ----------------------------------------------------------------------

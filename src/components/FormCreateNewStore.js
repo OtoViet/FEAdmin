@@ -29,6 +29,9 @@ export default function FormDialog(props) {
     const handleClickOpen = () => {
         setOpen(true);
     };
+    const handleCloseDialog = (value)=>{
+        setDialog(value);
+    }
     const signUpSchema = Yup.object().shape({
         email: Yup.string()
             .email('Email không hợp lệ')
@@ -56,7 +59,7 @@ export default function FormDialog(props) {
         },
         validationSchema: signUpSchema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            // alert(JSON.stringify(values, null, 2));
             FormApi.createStore(values).then(res => {
                 setStore(res);
                 setDialog(true);
@@ -69,7 +72,7 @@ export default function FormDialog(props) {
     });
     return (
         <div>
-            {dialog ? <ResponsiveDialog open={dialog} title="Thông báo"
+            {dialog ? <ResponsiveDialog open={dialog} title="Thông báo" onClose={handleCloseDialog}
                 content="Thêm cửa hàng mới thành công!" /> : null}
             <Button
                 variant="contained"

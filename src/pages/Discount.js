@@ -86,13 +86,14 @@ export default function Discount() {
     return setDiscountList(discount);
   }, [discount]);
   const getStoreFromChild = (storeChild) => {
-    discount.push(storeChild);
-    setFilteredStore(applySortFilter(discount, getComparator(order, orderBy), filterName))
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - discount.length) : 0);
-    setDiscountList(applySortFilter(discount, getComparator(order, orderBy), filterName));
+    console.log([...discountList,storeChild]);
+    setFilteredStore(applySortFilter([...discountList,storeChild], getComparator(order, orderBy), filterName))
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - [...discountList,storeChild].length) : 0);
+    setDiscountList(applySortFilter([...discountList,storeChild], getComparator(order, orderBy), filterName));
   };
   const getStoreFromChildDelete = (storeChild) => {
-    discount = discount.filter(item => item._id !== storeChild._id);
+    discount = discountList.filter(item => item._id !== storeChild._id);
+    console.log(discount);
     setFilteredStore(applySortFilter(discount, getComparator(order, orderBy), filterName));
     setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - discount.length) : 0);
     setDiscountList(applySortFilter(discount, getComparator(order, orderBy), filterName));
@@ -121,7 +122,7 @@ export default function Discount() {
   };
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
-    console.log('handle sort',isAsc);
+    console.log('handle sort', isAsc);
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
@@ -165,7 +166,7 @@ export default function Discount() {
     setFilterName(event.target.value);
   };
   if (loading) return <>
-    <h2 style={{ textAlign: "center" }}>Đang tải danh sách cửa hàng</h2>
+    <h2 style={{ textAlign: "center" }}>Đang tải danh sách mã giảm giá</h2>
     <Stack alignItems="center" mt={10}>
       <CircularProgress size={80} />
     </Stack>

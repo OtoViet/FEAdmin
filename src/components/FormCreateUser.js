@@ -78,6 +78,9 @@ export default function FormDialog(props) {
         setImage('');
         formik.handleReset();
     };
+    const handleCloseDialog = (value)=>{
+        setDialog(value);
+    }
     const formik = useFormik({
         initialValues: {
             email: '',
@@ -128,7 +131,7 @@ export default function FormDialog(props) {
     };
     return (
         <div>
-            {dialog ? <ResponsiveDialog open={dialog} title="Thông báo"
+            {dialog ? <ResponsiveDialog open={dialog} title="Thông báo" onClose={handleCloseDialog}
                 content="Đăng kí tài khoản mới cho nhân viên thành công!" /> : null}
             <Button
                 variant="contained"

@@ -8,13 +8,10 @@ import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
 import FormApi from '../../../api/formApi';
 // material
 import {
-  Link,
   Stack,
-  Checkbox,
   TextField,
   IconButton,
   InputAdornment,
-  FormControlLabel
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -90,23 +87,13 @@ export default function LoginForm() {
           />
         </Stack>
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-          <FormControlLabel
-            control={<Checkbox {...getFieldProps('remember')} checked={values.remember} />}
-            label="Nhớ tài khoản"
-          />
-
-          <Link component={RouterLink} variant="subtitle2" to="#">
-            Quên mật khẩu?
-          </Link>
-        </Stack>
-
         <LoadingButton
           fullWidth
           size="large"
           type="submit"
           variant="contained"
           loading={isSubmitting}
+          sx={{my:2}}
         >
           Đăng nhập
         </LoadingButton>

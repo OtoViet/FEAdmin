@@ -33,7 +33,7 @@ const TABLE_HEAD = [
   { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
   { id: 'address', label: 'Địa chỉ', alignRight: false },
   { id: 'phoneNumber', label: 'Liên lạc', alignRight: false },
-  { id: 'isVerified', label: 'isVerified', alignRight: false },
+  { id: 'isVerified', label: 'Email', alignRight: false },
   { id: '' }
 ];
 
@@ -85,13 +85,12 @@ export default function User() {
     return setEmployeeList(employees);
   }, [employees]);
   const getEmployeeFromChild = (employee) => {
-    employees.push(employee);
-    setFilteredUsers(applySortFilter(employees, getComparator(order, orderBy), filterName))
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
-    setEmployeeList(applySortFilter(employees, getComparator(order, orderBy), filterName));
+    setFilteredUsers(applySortFilter([...employeeList,employee], getComparator(order, orderBy), filterName))
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - [...employeeList,employee].length) : 0);
+    setEmployeeList(applySortFilter([...employeeList,employee], getComparator(order, orderBy), filterName));
   };
   const getEmployeeFromChildDelete = (employee) => {
-    employees = employees.filter(item => item._id !== employee._id);
+    employees = employeeList.filter(item => item._id !== employee._id);
     setFilteredUsers(applySortFilter(employees, getComparator(order, orderBy), filterName));
     setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
     setEmployeeList(applySortFilter(employees, getComparator(order, orderBy), filterName));
@@ -195,7 +194,7 @@ export default function User() {
                   {filteredUsers1
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { _id, fullName, isVerified, address, dateOfBirth, phoneNumber, image } = row;
+                      const { _id, fullName, isVerified, address, dateOfBirth, phoneNumber, image, email } = row;
                       const isItemSelected = selected.indexOf(fullName) !== -1;
 
                       return (
@@ -224,20 +223,7 @@ export default function User() {
                           <TableCell align="left">{dateOfBirth}</TableCell>
                           <TableCell align="left">{address}</TableCell>
                           <TableCell align="left">{phoneNumber}</TableCell>
-                          <TableCell align="left">
-                            {isVerified ? (
-                              <Label
-                                variant="ghost"
-                                color={'success'}
-                              >
-                                {sentenceCase('Yes')}
-                              </Label>) : (<Label
-                                variant="ghost"
-                                color={'error'}
-                              >
-                                {sentenceCase('No')}
-                              </Label>)}
-                          </TableCell>
+                          <TableCell align="left">{email}</TableCell>
 
                           <TableCell align="right">
                             <UserMoreMenu idEmployee={_id}

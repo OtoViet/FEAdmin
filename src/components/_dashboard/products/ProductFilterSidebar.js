@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 //
 import Scrollbar from '../../Scrollbar';
-import ColorManyPicker from '../../ColorManyPicker';
+// import ColorManyPicker from '../../ColorManyPicker';
 
 // ----------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ export default function ShopFilterSidebar({
   onCloseFilter,
   formik
 }) {
-  const { values, getFieldProps, handleChange } = formik;
+  const { values, getFieldProps } = formik;
 
   return (
     <>

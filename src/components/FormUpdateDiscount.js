@@ -68,7 +68,11 @@ export default function FormDialog(props) {
         endDate: Yup.string().required('Vui lòng nhập ngày kết thúc'),
         description: Yup.string().required('Vui lòng nhập thông tin thêm'),
         name: Yup.string().required('Vui lòng nhập tên mã giảm giá'),
-        percentSale: Yup.number().required('Vui lòng nhập phần trăm giá được giảm'),
+        percentSale: Yup.number().typeError('Vui lòng nhập số').required('Vui lòng nhập phần trăm giá được giảm').test(
+            'Is positive?', 
+            'Không được nhập số âm', 
+            (value) => value > 0
+        ),
         discountCode: Yup.string().required('Vui lòng nhập mã code').min(12, 'Mã code phải có ít nhất 12 ký tự')
             .max(12, 'Mã code có tối đa 12 ký tự'),
     });

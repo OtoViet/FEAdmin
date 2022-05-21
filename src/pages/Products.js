@@ -1,4 +1,3 @@
-import { useFormik } from 'formik';
 import { useState, useEffect } from 'react';
 import FormDialog from '../components/FormAddNewProduct.js';
 // material
@@ -18,23 +17,10 @@ import useGetAllProduct from '../hooks/useGetAllProduct';
 // ----------------------------------------------------------------------
 
 export default function EcommerceShop() {
-  const [openFilter, setOpenFilter] = useState(false);
   const [pages, setPages] = useState(1);
   const [data, setData] = useState('loading');
   let [loading, products] = useGetAllProduct();
   const [productList, setProductList] = useState(null);
-  const formik = useFormik({
-    initialValues: {
-      gender: '',
-      category: '',
-      colors: '',
-      priceRange: '',
-      rating: ''
-    },
-    onSubmit: () => {
-      setOpenFilter(false);
-    }
-  });
 
   useEffect(() => {
     setProductList(products);
@@ -45,26 +31,16 @@ export default function EcommerceShop() {
     setData(Math.random());
     setProductList(products);
   };
-  const { resetForm, handleSubmit } = formik;
 
-  const handleOpenFilter = () => {
-    setOpenFilter(true);
-  };
   const handleClickPagination = (value) => {
     setPages(value);
-  };
-  const handleCloseFilter = () => {
-    setOpenFilter(false);
   };
   const handleSort = (data) => {
     products = data;
     setProductList(data);
     setData(Math.random());
   };
-  const handleResetFilter = () => {
-    handleSubmit();
-    resetForm();
-  };
+
   if (loading) return <>
     <h2 style={{ textAlign: "center" }}>Đang tải danh sách sản phẩm/dịch vụ</h2>
     <Stack alignItems="center" mt={10}>

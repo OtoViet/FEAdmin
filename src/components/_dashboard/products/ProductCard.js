@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // material
-import { Box, Card, Link, Typography, Stack, Rating  } from '@mui/material';
+import { Box, Card, Typography, Stack, Rating  } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // utils
 import { fCurrency } from '../../../utils/formatNumber';
@@ -16,7 +16,8 @@ const ProductImgStyle = styled('img')({
   width: '100%',
   height: '100%',
   objectFit: 'cover',
-  position: 'absolute'
+  position: 'absolute',
+  cursor: 'pointer'
 });
 
 // ----------------------------------------------------------------------
@@ -55,14 +56,14 @@ export default function ShopProductCard({ product }) {
             {status}
           </Label>
         )}
-        <ProductImgStyle alt={productName} src={images[0].url} />
+        <ProductImgStyle onClick={handleClick} alt={productName} src={images[0].url} />
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
         <Typography color="inherit"
         component="span"
         onClick={handleClick} >
-          <Typography variant="subtitle2" noWrap>
+          <Typography variant="subtitle2" noWrap style={{cursor: 'pointer'}}>
             {productName}
           </Typography>
         </Typography>

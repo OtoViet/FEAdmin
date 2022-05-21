@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import { Link as RouterLink } from 'react-router-dom';
 // material
 import { Grid, CircularProgress, Container, Stack, Typography } from '@mui/material';
 // components
@@ -34,17 +33,17 @@ export default function Schedules() {
       confirm: ''
     },
     onSubmit: (value) => {
-      if (value.confirm == 'confirmed') {
+      if (value.confirm === 'confirmed') {
         if (!loading) {
           let newOrderList = orders;
-          setOrderList(newOrderList.filter(order => order.isConfirmed == true));
+          setOrderList(newOrderList.filter(order => order.isConfirmed === true && order.isCompleted===false));
         }
       }
-      else if (value.confirm == 'canceled') {
+      else if (value.confirm === 'canceled') {
         let newOrderList = orders;
-        setOrderList(newOrderList.filter(order => order.isCanceled == true));
+        setOrderList(newOrderList.filter(order => order.isCanceled === true));
       }
-      else if (value.confirm == '') {
+      else if (value.confirm === '') {
         if (!loading) {
           setOrderList(orders.sort(function (a, b) {
             let dateA = new Date(a.createdAt);
@@ -55,10 +54,16 @@ export default function Schedules() {
           }));
         }
       }
+      else if(value.confirm === 'completed') {
+        if (!loading) {
+          let newOrderList = orders;
+          setOrderList(newOrderList.filter(order => order.isCompleted === true));
+        }
+      }
       else {
         if (!loading) {
           let newOrderList = orders;
-          setOrderList(newOrderList.filter(order => (order.isConfirmed == false) && (order.isCanceled == false)));
+          setOrderList(newOrderList.filter(order => (order.isConfirmed === false) && (order.isCanceled === false)));
         }
       }
       setOpenFilter(false);
@@ -66,6 +71,10 @@ export default function Schedules() {
   });
 
   const { resetForm, handleSubmit } = formik;
+  const handleSearchFilter = (value)=>{
+    if(value==='reset') setOrderList(orders);
+    else setOrderList(value);
+  }
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
@@ -151,7 +160,7 @@ export default function Schedules() {
           </Typography>
         </Stack>
         <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
-          <SchedulesSearch orders={orderList} />
+          <SchedulesSearch orders={orderList} searchFilter={handleSearchFilter} />
           <ScheduleFilterSidebar
             formik={formik}
             isOpenFilter={openFilter}

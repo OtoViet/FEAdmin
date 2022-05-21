@@ -3,7 +3,7 @@ import ReactApexChart from 'react-apexcharts';
 // material
 import { Box, Card, CardHeader } from '@mui/material';
 // utils
-import { fNumber } from '../../../utils/formatNumber';
+// import { fNumber } from '../../../utils/formatNumber';
 //
 import { BaseOptionChart } from '../../charts';
 //
@@ -15,15 +15,15 @@ import { Stack, CircularProgress } from '@mui/material';
 export default function AppConversionRates() {
   const [loading, statisticalLast7Days] = useStatisticalLast7Days();
   const chartOptions = merge(BaseOptionChart(), {
-    tooltip: {
-      marker: { show: false },
-      y: {
-        formatter: (seriesName) => fNumber(seriesName),
-        title: {
-          formatter: (seriesName) => `${seriesName}`
-        }
-      }
-    },
+    // tooltip: {
+    //   marker: { show: false },
+    //   y: {
+    //     formatter: (seriesName) => fNumber(seriesName),
+    //     title: {
+    //       formatter: (seriesName) => `${seriesName}`
+    //     }
+    //   }
+    // },
 
     plotOptions: {
       bar: { horizontal: true, barHeight: '60%', borderRadius: 2 }
@@ -47,6 +47,7 @@ export default function AppConversionRates() {
     
     tooltip: {
       shared: true,
+      marker: { show: false },
       intersect: false,
       y: {
         formatter: (y) => {

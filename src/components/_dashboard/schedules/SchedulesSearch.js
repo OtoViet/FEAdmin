@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
+import {useState} from 'react';
 import { Icon } from '@iconify/react';
+import { format } from 'date-fns';
 import searchFill from '@iconify/icons-eva/search-fill';
 // material
 import { styled } from '@mui/material/styles';
@@ -9,13 +11,13 @@ import { Box, TextField, Autocomplete, InputAdornment } from '@mui/material';
 
 const RootStyle = styled('div')(({ theme }) => ({
   '& .MuiAutocomplete-root': {
-    width: 200,
+    width: 380,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.shorter
     }),
     '&.Mui-focused': {
-      width: 240,
+      width: 380,
       '& .MuiAutocomplete-inputRoot': {
         boxShadow: theme.customShadows.z12
       }
@@ -40,16 +42,26 @@ SchedulesSearch.propTypes = {
   orders: PropTypes.array.isRequired
 };
 
-export default function SchedulesSearch({ orders }) {
+export default function SchedulesSearch({ orders, searchFilter }) {
   return (
     <RootStyle>
       <Autocomplete
-        size="small"
+        size="medium"
         disablePortal
         popupIcon={null}
         options={orders}
-        groupBy={(option) => option.contactInfo.name[0]}
-        getOptionLabel={(order) => order.contactInfo.name}
+        groupBy={(option) => format(new Date(option.createdAt), 'dd/MM/yyyy')}
+        getOptionLabel={(order) => `${order.contactInfo.email}${order._id}`}
+        onInputChange={(event, value) => {
+          if (value === '') {
+            searchFilter('reset');
+          }
+        }}
+        onChange={(event, value) => {
+          if (value) {
+            searchFilter([value]);
+          }
+        }}
         renderInput={(params) => (
           <TextField
             {...params}

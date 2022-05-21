@@ -26,6 +26,7 @@ export const FILTER_ORDERS_OPTIONS = [
   { value: 'confirmed', label: 'Đã xác nhận' },
   { value: 'notConfirmed', label: 'Chưa xác nhận' },
   { value: 'canceled', label: 'Đã hủy' },
+  { value: 'completed', label: 'Đã hoàn thành' },
 ];
 
 // ----------------------------------------------------------------------
@@ -45,7 +46,7 @@ export default function ScheduleFilterSidebar({
   onCloseFilter,
   formik
 }) {
-  const { values, getFieldProps, handleChange } = formik;
+  const { getFieldProps } = formik;
 
   return (
     <>

@@ -82,13 +82,12 @@ export default function StoreList() {
     return setStoreList(stores);
   }, [stores]);
   const getStoreFromChild = (storeChild) => {
-    stores.push(storeChild);
-    setFilteredStore(applySortFilter(stores, getComparator(order, orderBy), filterName))
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stores.length) : 0);
-    setStoreList(applySortFilter(stores, getComparator(order, orderBy), filterName));
+    setFilteredStore(applySortFilter([...storeList, storeChild], getComparator(order, orderBy), filterName))
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - [...storeList, storeChild].length) : 0);
+    setStoreList(applySortFilter([...storeList, storeChild], getComparator(order, orderBy), filterName));
   };
   const getStoreFromChildDelete = (storeChild) => {
-    stores = stores.filter(item => item._id !== storeChild._id);
+    stores = storeList.filter(item => item._id !== storeChild._id);
     setFilteredStore(applySortFilter(stores, getComparator(order, orderBy), filterName));
     setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stores.length) : 0);
     setStoreList(applySortFilter(stores, getComparator(order, orderBy), filterName));

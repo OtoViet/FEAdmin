@@ -75,6 +75,10 @@ const formApi={
         const url ='/admin/addNewProduct';
         return axiosClient.post(url,body);
     },
+    getProductById: function(id){
+        const url ='/admin/getProductById/'+id;
+        return axiosClient.get(url);
+    },
     getAllProduct: function(){
         const url ='/admin/getAllProduct';
         return axiosClient.get(url);
@@ -122,6 +126,14 @@ const formApi={
     cancelOrder: function(id){
         const url ='/admin/cancelOrder/'+id;
         return axiosClient.patch(url);
+    },
+    updateOrder: function(body,id){
+        const url ='/admin/updateOrder/'+id;
+        return axiosClient.patch(url,body);
+    },
+    setEmployeeForOrder: function(body,id){
+        const url ='/admin/setEmployeeForOrder/'+id;
+        return axiosClient.patch(url,body);
     },
     getOrderById: function(id){
         const url ='/order/getOrderById/'+id;
