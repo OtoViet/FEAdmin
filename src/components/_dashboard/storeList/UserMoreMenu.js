@@ -28,19 +28,7 @@ export default function UserMoreMenu(props) {
       props.parentCallback1(store);
     }
   }, [store]);
-  let handleDeleteStore = (id) => {
-    setTitleDialog('Thông báo');
-    FormApi.deleteStore(id).then((res) => {
-      setStore(res);
-      setDialog(true);
-      setContentDialog('Xóa cửa hàng thành công');
-    }).catch((err) => {
-      setDialog(true);
-      setContentDialog('Xóa cửa hàng thất bại');
-      console.log(err);
-    });
 
-  };
   const dataFromChild = (data) => {
     console.log(data);
     props.getStoreFromChildUpdate(data);
@@ -54,9 +42,13 @@ export default function UserMoreMenu(props) {
   const handleClose = (status) => {
     setDialogConfirm(false);
   };
+  const handleAfterUpdateStore = (status) => {
+    props.dialogUpdateStore(status);
+  };
   const handleAccept = (value) => {
     if (value) {
       setTitleDialog('Thông báo');
+      props.statusDialogDelete(true);
       FormApi.deleteStore(id).then((res) => {
         setStore(res);
         setDialog(true);
@@ -80,6 +72,7 @@ export default function UserMoreMenu(props) {
       }
       {dialog ? <Dialog open={dialog} title={titleDialog} content={contentDialog} /> : null}
       {openUpdateStore ? <FormUpdateStore open={openUpdateStore} parentCallback={statusOpen}
+        updateStore={handleAfterUpdateStore}
         dataFromChild={dataFromChild}
         id={props.idStore} stores={props.storeList} /> : null}
 

@@ -47,6 +47,7 @@ export default function FormDialog(props) {
         onSubmit: (values) => {
             const EmployeeData = values;
             FormApi.updateInfoEmployee(EmployeeData,props.id).then(res => {
+                props.updateUser(true);
                 setEmployee(res);
                 console.log(res);
                 props.parentCallback(false);

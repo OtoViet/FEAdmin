@@ -49,6 +49,7 @@ export default function FormDialog(props) {
         onSubmit: (values) => {
             const storeData = values;
             FormApi.updateStore(storeData,props.id).then(res => {
+                props.updateStore(true);
                 setStore(res);
                 props.parentCallback(false);
                 props.dataFromChild(res);

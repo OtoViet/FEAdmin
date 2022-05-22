@@ -32,6 +32,9 @@ export default function UserMoreMenu(props) {
     console.log(data);
     props.getEmployeeFromChildUpdate(data);
   };
+  const handleAfterUpdateUser = (status) => {
+    props.dialogUpdateUser(status);
+  };
   let statusOpen = (status) => {
     setOpenUpdateEmployee(status);
   };
@@ -44,6 +47,7 @@ export default function UserMoreMenu(props) {
   const handleAccept = (value) => {
     if (value) {
       setTitleDialog('Thông báo');
+      props.statusDialogDelete(true);
       FormApi.deleteEmployee(id).then((res) => {
         setEmployee(res);
         setDialog(true);
@@ -67,6 +71,7 @@ export default function UserMoreMenu(props) {
       {dialog ? <Dialog open={dialog} title={titleDialog} content={contentDialog} /> : null}
       {openUpdateEmployee ? <FormUpdateUser open={openUpdateEmployee} parentCallback={statusOpen}
         dataFromChild={dataFromChild}
+        updateUser={handleAfterUpdateUser}
         id={props.idEmployee} employees={props.employeeList} /> : null}
 
       <IconButton ref={ref} onClick={() => setIsOpen(true)}>

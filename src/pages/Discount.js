@@ -99,14 +99,14 @@ export default function Discount() {
     setDiscountList(applySortFilter(discount, getComparator(order, orderBy), filterName));
   };
   const getStoreFromChildUpdate = async (storeChild) => {
-    let newDiscountList = await discount.map(item => {
+    let newDiscountList = await discountList.map(item => {
       if (item._id === storeChild._id) {
         return storeChild;
       }
       return item;
     });
     setFilteredStore(applySortFilter(newDiscountList, getComparator(order, orderBy), filterName));
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - discount.length) : 0);
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - discountList.length) : 0);
     setDiscountList(applySortFilter(newDiscountList, getComparator(order, orderBy), filterName));
   };
   ////
@@ -126,7 +126,9 @@ export default function Discount() {
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
+  const handleClose = (value)=>{
+    setDialog(value);
+  };
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = discountList.map((n) => n.name);
@@ -175,7 +177,7 @@ export default function Discount() {
   const isUserNotFound = filteredUsers1.length === 0;
   return (
     <Page title="Mã giảm giá">
-      {dialog ? <Dialog open={dialog} title={titleDialog} content={contentDialog} /> : null}
+      {dialog ? <Dialog open={dialog} onClose={handleClose} title={titleDialog} content={contentDialog} /> : null}
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>

@@ -14,7 +14,7 @@ export default function ResponsiveDialog(props) {
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const handleClose = () => {
     setOpen(false);
-    props.onClose(false);
+    if(props.onClose) props.onClose(false);
   };
 
   return (

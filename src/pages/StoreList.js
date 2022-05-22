@@ -1,6 +1,7 @@
 import { filter } from 'lodash';
 import { useState, useEffect } from 'react';
 import FormDialog from '../components/FormCreateNewStore.js';
+import Dialog from '../components/Dialog.js';
 // material
 import {
   Card,
@@ -67,6 +68,9 @@ function applySortFilter(array, comparator, query) {
 
 export default function StoreList() {
   let [loading, stores] = useGetAllStore();
+  const [dialog, setDialog] = useState(false);
+  const [titleDialog, setTitleDialog] = useState('');
+  const [contentDialog, setContentDialog] = useState('');
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -93,18 +97,30 @@ export default function StoreList() {
     setStoreList(applySortFilter(stores, getComparator(order, orderBy), filterName));
   };
   const getStoreFromChildUpdate = async (storeChild) => {
-    let newStoreList = await stores.map(item => {
+    let newStoreList = await storeList.map(item => {
       if (item._id === storeChild._id) {
         return storeChild;
       }
       return item;
     });
     setFilteredStore(applySortFilter(newStoreList, getComparator(order, orderBy), filterName));
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stores.length) : 0);
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - storeList.length) : 0);
     setStoreList(applySortFilter(newStoreList, getComparator(order, orderBy), filterName));
   };
   ////
-
+  const statusDialogDelete = (status) => {
+    setDialog(status);
+    setTitleDialog('Thông báo');
+    setContentDialog('Xóa cửa hàng thành công !');
+  };
+  const dialogUpdateStore = (status) => {
+    setDialog(status);
+    setTitleDialog('Thông báo');
+    setContentDialog('Cập nhật thông tin cửa hàng thành công !');
+  };
+  const handleClose = (value)=>{
+    setDialog(value);
+  };
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     console.log('handle sort',isAsc);
@@ -160,6 +176,7 @@ export default function StoreList() {
   const isUserNotFound = filteredUsers1.length === 0;
   return (
     <Page title="Cửa hàng">
+      {dialog ? <Dialog open={dialog} onClose={handleClose} title={titleDialog} content={contentDialog} /> : null}
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -225,6 +242,8 @@ export default function StoreList() {
                             <UserMoreMenu idStore={_id}
                               storeList={storeList}
                               getStoreFromChildUpdate={getStoreFromChildUpdate}
+                              dialogUpdateStore={dialogUpdateStore}
+                              statusDialogDelete={statusDialogDelete}
                               parentCallback1={getStoreFromChildDelete} />
                           </TableCell>
                         </TableRow>

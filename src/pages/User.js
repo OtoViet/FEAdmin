@@ -1,7 +1,7 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import FormDialog from '../components/FormCreateUser.js';
+import Dialog from '../components/Dialog.js';
 // material
 import {
   Card,
@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../components/_dashboard/user';
@@ -71,6 +70,9 @@ function applySortFilter(array, comparator, query) {
 export default function User() {
   let [loading, employees] = useGetAllEmployee();
   const [page, setPage] = useState(0);
+  const [dialog, setDialog] = useState(false);
+  const [titleDialog, setTitleDialog] = useState('');
+  const [contentDialog, setContentDialog] = useState('');
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('fullName');
@@ -96,17 +98,31 @@ export default function User() {
     setEmployeeList(applySortFilter(employees, getComparator(order, orderBy), filterName));
   };
   const getEmployeeFromChildUpdate = async (employee) => {
-    let newEmployeeList = await employees.map(item => {
+    let newEmployeeList = await employeeList.map(item => {
       if (item._id === employee._id) {
         return employee;
       }
       return item;
     });
     setFilteredUsers(applySortFilter(newEmployeeList, getComparator(order, orderBy), filterName));
-    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employees.length) : 0);
+    setEmptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - employeeList.length) : 0);
     setEmployeeList(applySortFilter(newEmployeeList, getComparator(order, orderBy), filterName));
   };
   ////
+
+  const statusDialogDelete = (status) => {
+    setDialog(status);
+    setTitleDialog('Thông báo');
+    setContentDialog('Xóa nhân viên thành công !');
+  };
+  const dialogUpdateUser = (status) => {
+    setDialog(status);
+    setTitleDialog('Thông báo');
+    setContentDialog('Cập nhật thông tin nhân viên thành công !');
+  };
+  const handleClose = (value)=>{
+    setDialog(value);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -163,6 +179,7 @@ export default function User() {
   const isUserNotFound = filteredUsers1.length === 0;
   return (
     <Page title="Nhân viên">
+      {dialog ? <Dialog open={dialog} onClose={handleClose} title={titleDialog} content={contentDialog} /> : null}
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -228,6 +245,8 @@ export default function User() {
                           <TableCell align="right">
                             <UserMoreMenu idEmployee={_id}
                               employeeList={employeeList}
+                              dialogUpdateUser={dialogUpdateUser}
+                              statusDialogDelete={statusDialogDelete}
                               getEmployeeFromChildUpdate={getEmployeeFromChildUpdate}
                               parentCallback1={getEmployeeFromChildDelete} />
                           </TableCell>
