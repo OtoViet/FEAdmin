@@ -134,7 +134,7 @@ export default function NotificationsPopover() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(notification);
   const [totalUnRead, setTotalUnRead] = useState(0);
-  const socket = io("http://localhost:5000", { transports: ['websocket', 'polling', 'flashsocket'] });
+  const socket = io("https://luanvanapi.azurewebsites.net", { transports: ['websocket', 'polling', 'flashsocket'] });
 
   useEffect(() => {
     setNotifications(notification);
@@ -150,8 +150,8 @@ export default function NotificationsPopover() {
   useEffect(() => {
     socket.once('send', function (data) {
       if (!loading) {
-        setNotifications([...notifications, data]);
-        setTotalUnRead([...notifications, data].filter((item) => item.isRead === false).length);
+        setNotifications([data, ...notifications]);
+        setTotalUnRead([data, ...notifications].filter((item) => item.isRead === false).length);
       }
     });
   }, [notifications]);

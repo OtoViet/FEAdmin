@@ -2,7 +2,7 @@ import axios from 'axios';
 import queryString from 'query-string'
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'https://luanvanapi.azurewebsites.net/api',
     headers: {
         'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*"
